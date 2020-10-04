@@ -1,0 +1,24 @@
+[package]
+name = "furby"
+version = "0.1.0"
+authors = ["Akshay <nerdy@peppe.rs>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+actix-web = "3"
+bcrypt = "0.8"
+serde = "1.0"
+serde_derive = "1.0"
+serde_json = "1.0"
+log = "0.4"
+pretty_env_logger = "0.4"
+actix-identity = "0.3.1"
+actix-cors = "0.4.0"
+rand = "0.7"
+
+[dependencies.diesel]
+version = "1.4"
+features = ["mysql", "r2d2"]
+default-features = false

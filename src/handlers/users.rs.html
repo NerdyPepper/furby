@@ -1,0 +1,137 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>~/code/rust/actix-tests/src/handlers/users.rs.html</title>
+<meta name="Generator" content="Vim/8.0">
+<meta name="plugin-version" content="vim8.1_v1">
+<meta name="syntax" content="rust">
+<meta name="settings" content="use_css,no_foldcolumn,expand_tabs,prevent_copy=">
+<meta name="colorscheme" content="plain">
+<style type="text/css">
+<!--
+pre { font-family: monospace; color: #c0c0c0; background-color: #000000; }
+body { font-family: monospace; color: #c0c0c0; background-color: #000000; }
+* { font-size: 1em; }
+.Statement { color: #c0c0c0; background-color: #000000; padding-bottom: 1px; font-weight: bold; }
+.Normal { color: #c0c0c0; background-color: #000000; padding-bottom: 1px; }
+.Function { color: #c0c0c0; font-weight: bold; }
+.secondAccent { color: #c000c0; background-color: #000000; padding-bottom: 1px; }
+.Noise { color: #8080ff; background-color: #000000; padding-bottom: 1px; }
+.rustModPath { color: #ff40ff; background-color: #000000; padding-bottom: 1px; }
+.Constant { color: #008080; background-color: #000000; padding-bottom: 1px; }
+.StatusLine { color: #808080; background-color: #000000; padding-bottom: 1px; }
+-->
+</style>
+</head>
+<body>
+<pre id='vimCodeElement'>
+<span class="Noise">use</span> <span class="rustModPath">crate</span><span class="StatusLine">::</span><span class="rustModPath">models</span><span class="StatusLine">::</span>{Member, NewMember};
+<span class="Noise">use</span> <span class="rustModPath">crate</span><span class="StatusLine">::</span><span class="rustModPath">schema</span><span class="StatusLine">::</span><span class="rustModPath">members</span><span class="StatusLine">::</span><span class="rustModPath">dsl</span><span class="StatusLine">::</span><span class="Statement">*</span>;
+<span class="Noise">use</span> <span class="rustModPath">crate</span><span class="StatusLine">::</span>TPool;
+
+<span class="Noise">use</span> <span class="rustModPath">actix_identity</span><span class="StatusLine">::</span>Identity;
+<span class="Noise">use</span> <span class="rustModPath">actix_web</span><span class="StatusLine">::</span>{web, HttpResponse, Responder};
+<span class="Noise">use</span> <span class="rustModPath">bcrypt</span><span class="StatusLine">::</span>{hash, verify, DEFAULT_COST};
+<span class="Noise">use</span> <span class="rustModPath">diesel</span><span class="StatusLine">::</span><span class="rustModPath">prelude</span><span class="StatusLine">::</span><span class="Statement">*</span>;
+<span class="Noise">use</span> <span class="rustModPath">log</span><span class="StatusLine">::</span>{error, info};
+<span class="Noise">use</span> <span class="rustModPath">serde</span><span class="StatusLine">::</span>Deserialize;
+
+<span class="Noise">pub</span> <span class="Noise">async</span> <span class="Noise">fn</span> <span class="Function">new_user</span>(
+    pool: <span class="rustModPath">web</span><span class="StatusLine">::</span>Data<span class="Noise">&lt;</span>TPool<span class="Noise">&gt;</span>,
+    item: <span class="rustModPath">web</span><span class="StatusLine">::</span>Json<span class="Noise">&lt;</span>NewMember<span class="Noise">&gt;</span>,
+) <span class="Noise">-&gt;</span> <span class="Noise">impl</span> Responder {
+    <span class="Noise">let</span> conn <span class="Noise">=</span> pool.<span class="Function">get</span>().<span class="Function">unwrap</span>();
+    <span class="Noise">let</span> hashed_item <span class="Noise">=</span> NewMember {
+        password: <span class="Function">hash</span>(<span class="Statement">&amp;</span>item.password, DEFAULT_COST).<span class="Function">unwrap</span>(),
+        ..(item.<span class="Function">into_inner</span>())
+    };
+    <span class="rustModPath">diesel</span><span class="StatusLine">::</span><span class="Function">insert_into</span>(members)
+        .<span class="Function">values</span>(hashed_item)
+        .<span class="Function">execute</span>(<span class="Statement">&amp;</span>conn)
+        .<span class="Function">expect</span>(<span class="Constant">&quot;</span><span class="Constant">Coundn't connect to DB</span><span class="Constant">&quot;</span>);
+    <span class="rustModPath">HttpResponse</span><span class="StatusLine">::</span><span class="Constant">Ok</span>().<span class="Function">body</span>(<span class="Constant">&quot;</span><span class="Constant">Inserted successfully!</span><span class="Constant">&quot;</span>)
+}
+
+<span class="Noise">pub</span> <span class="Noise">async</span> <span class="Noise">fn</span> <span class="Function">name_exists</span>(
+    pool: <span class="rustModPath">web</span><span class="StatusLine">::</span>Data<span class="Noise">&lt;</span>TPool<span class="Noise">&gt;</span>,
+    item: <span class="Normal">String</span>,
+) <span class="Noise">-&gt;</span> <span class="Noise">impl</span> Responder {
+    <span class="Noise">let</span> conn <span class="Noise">=</span> pool.<span class="Function">get</span>().<span class="Function">unwrap</span>();
+    <span class="secondAccent">info!</span>(<span class="Constant">&quot;</span><span class="Constant">target: {:?}</span><span class="Constant">&quot;</span>, item);
+    <span class="Statement">if</span> (members
+        .<span class="Function">filter</span>(username.<span class="Function">eq</span>(<span class="Statement">&amp;</span>item))
+        .<span class="Function">limit</span>(<span class="Constant">1</span>)
+        .<span class="Function">load</span><span class="StatusLine">::</span><span class="Noise">&lt;</span>Member<span class="Noise">&gt;</span>(<span class="Statement">&amp;</span>conn)
+        .<span class="Function">expect</span>(<span class="Constant">&quot;</span><span class="Constant">Coundn't connect to DB</span><span class="Constant">&quot;</span>))
+    .<span class="Function">len</span>()
+        <span class="Noise">&gt;</span> <span class="Constant">0</span>
+    {
+        <span class="rustModPath">HttpResponse</span><span class="StatusLine">::</span><span class="Constant">Ok</span>().<span class="Function">body</span>(<span class="Constant">&quot;</span><span class="Constant">true</span><span class="Constant">&quot;</span>)
+    } <span class="Statement">else</span> {
+        <span class="rustModPath">HttpResponse</span><span class="StatusLine">::</span><span class="Constant">Ok</span>().<span class="Function">body</span>(<span class="Constant">&quot;</span><span class="Constant">false</span><span class="Constant">&quot;</span>)
+    }
+}
+
+<span class="secondAccent">#[</span><span class="secondAccent">derive(Deserialize)</span><span class="secondAccent">]</span>
+<span class="Noise">pub</span> <span class="Statement">struct</span> <span class="Normal">Login</span> {
+    username: <span class="Normal">String</span>,
+    password: <span class="Normal">String</span>,
+}
+
+<span class="Noise">pub</span> <span class="Noise">async</span> <span class="Noise">fn</span> <span class="Function">login</span>(
+    pool: <span class="rustModPath">web</span><span class="StatusLine">::</span>Data<span class="Noise">&lt;</span>TPool<span class="Noise">&gt;</span>,
+    cookie: Identity,
+    login_details: <span class="rustModPath">web</span><span class="StatusLine">::</span>Form<span class="Noise">&lt;</span>Login<span class="Noise">&gt;</span>,
+) <span class="Noise">-&gt;</span> <span class="Noise">impl</span> Responder {
+    <span class="Noise">let</span> conn <span class="Noise">=</span> pool.<span class="Function">get</span>().<span class="Function">unwrap</span>();
+    <span class="Noise">let</span> entered_pass <span class="Noise">=</span> <span class="Statement">&amp;</span>login_details.password;
+    <span class="Noise">let</span> selected_user <span class="Noise">=</span> members
+        .<span class="Function">filter</span>(username.<span class="Function">eq</span>(<span class="Statement">&amp;</span>login_details.username))
+        .<span class="Function">limit</span>(<span class="Constant">1</span>)
+        .<span class="Function">first</span><span class="StatusLine">::</span><span class="Noise">&lt;</span>Member<span class="Noise">&gt;</span>(<span class="Statement">&amp;</span>conn)
+        .<span class="Function">expect</span>(<span class="Constant">&quot;</span><span class="Constant">Couldn't connect to DB</span><span class="Constant">&quot;</span>);
+    <span class="Noise">let</span> hashed_pass <span class="Noise">=</span> selected_user.password;
+    <span class="Statement">if</span> <span class="Function">verify</span>(entered_pass, <span class="Statement">&amp;</span>hashed_pass).<span class="Function">unwrap</span>() {
+        cookie.<span class="Function">remember</span>(login_details.username.<span class="Function">clone</span>());
+        <span class="secondAccent">info!</span>(
+            <span class="Constant">&quot;</span><span class="Constant">Successful login: {} {}</span><span class="Constant">&quot;</span>,
+            selected_user.username, selected_user.email_id
+        );
+        <span class="rustModPath">HttpResponse</span><span class="StatusLine">::</span><span class="Function">Found</span>().<span class="Function">header</span>(<span class="Constant">&quot;</span><span class="Constant">location</span><span class="Constant">&quot;</span>, <span class="Constant">&quot;</span><span class="Constant">/</span><span class="Constant">&quot;</span>).<span class="Function">finish</span>()
+    } <span class="Statement">else</span> {
+        <span class="rustModPath">HttpResponse</span><span class="StatusLine">::</span><span class="Function">Unauthorized</span>().<span class="Function">finish</span>()
+    }
+}
+
+<span class="Noise">pub</span> <span class="Noise">async</span> <span class="Noise">fn</span> <span class="Function">logout</span>(cookie: Identity) <span class="Noise">-&gt;</span> <span class="Noise">impl</span> Responder {
+    cookie.<span class="Function">forget</span>();
+    <span class="rustModPath">HttpResponse</span><span class="StatusLine">::</span><span class="Function">Found</span>().<span class="Function">header</span>(<span class="Constant">&quot;</span><span class="Constant">location</span><span class="Constant">&quot;</span>, <span class="Constant">&quot;</span><span class="Constant">/</span><span class="Constant">&quot;</span>).<span class="Function">finish</span>()
+}
+
+<span class="Noise">pub</span> <span class="Noise">async</span> <span class="Noise">fn</span> <span class="Function">user_details</span>(
+    uname: <span class="rustModPath">web</span><span class="StatusLine">::</span>Path<span class="Noise">&lt;</span><span class="Normal">String</span><span class="Noise">&gt;</span>,
+    pool: <span class="rustModPath">web</span><span class="StatusLine">::</span>Data<span class="Noise">&lt;</span>TPool<span class="Noise">&gt;</span>,
+) <span class="Noise">-&gt;</span> <span class="Noise">impl</span> Responder {
+    <span class="Noise">let</span> conn <span class="Noise">=</span> pool.<span class="Function">get</span>().<span class="Function">unwrap</span>();
+    <span class="Noise">let</span> uname <span class="Noise">=</span> uname.<span class="Function">into_inner</span>();
+    <span class="secondAccent">info!</span>(<span class="Constant">&quot;</span><span class="Constant">Fetching info for: </span><span class="StatusLine">\&quot;</span><span class="Constant">{}</span><span class="StatusLine">\&quot;</span><span class="Constant">&quot;</span>, uname);
+    <span class="Noise">let</span> selected_user <span class="Noise">=</span> members
+        .<span class="Function">filter</span>(username.<span class="Function">eq</span>(<span class="Statement">&amp;</span>uname))
+        .<span class="Function">limit</span>(<span class="Constant">1</span>)
+        .<span class="Function">first</span><span class="StatusLine">::</span><span class="Noise">&lt;</span>Member<span class="Noise">&gt;</span>(<span class="Statement">&amp;</span>conn);
+    <span class="Statement">match</span> selected_user {
+        <span class="Constant">Ok</span>(m) <span class="Noise">=&gt;</span> {
+            <span class="secondAccent">info!</span>(<span class="Constant">&quot;</span><span class="Constant">Found user: {}</span><span class="Constant">&quot;</span>, uname);
+            <span class="rustModPath">HttpResponse</span><span class="StatusLine">::</span><span class="Constant">Ok</span>().<span class="Function">json</span>(m)
+        }
+        <span class="Constant">Err</span>(_) <span class="Noise">=&gt;</span> {
+            <span class="secondAccent">error!</span>(<span class="Constant">&quot;</span><span class="Constant">User not found: {}</span><span class="Constant">&quot;</span>, uname);
+            <span class="rustModPath">HttpResponse</span><span class="StatusLine">::</span><span class="Function">NotFound</span>().<span class="Function">finish</span>()
+        }
+    }
+}
+</pre>
+</body>
+</html>
+<!-- vim: set foldmethod=manual : -->
