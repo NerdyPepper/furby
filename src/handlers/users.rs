@@ -104,3 +104,40 @@ pub async fn user_details(
         }
     }
 }
+
+#[derive(Deserialize, Debug)]
+pub struct ChangePassword {
+    old_password: String,
+    new_password: String,
+}
+
+pub async fn change_password(
+    cookie: Identity,
+    password_details: web::Json<ChangePassword>,
+    pool: web::Data<TPool>,
+) -> impl Responder {
+    info!("Change password request: {:?}", password_details);
+    let conn = pool.get().unwrap();
+    if let Some(uname) = cookie.identity() {
+        let entered_pass = &password_details.old_password;
+        let new_password = &password_details.new_password;
+        let selected_user = members
+            .filter(username.eq(&uname))
+            .limit(1)
+            .first::<Member>(&conn)
+            .expect("Couldn't connect to DB");
+        let hashed_pass = selected_user.password;
+        if verify(entered_pass, &hashed_pass).unwrap() {
+            let hashed_new_password =
+                hash(&new_password, DEFAULT_COST).unwrap();
+            diesel::update(members.filter(id.eq(selected_user.id)))
+                .set(password.eq(hashed_new_password))
+                .execute(&conn)
+                .unwrap();
+            return HttpResponse::Ok().body("Changed password successfully");
+        } else {
+            return HttpResponse::Ok().body("Invalid password");
+        }
+    }
+    return HttpResponse::Unauthorized().body("Login first");
+}

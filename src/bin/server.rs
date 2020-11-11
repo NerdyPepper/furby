@@ -34,7 +34,11 @@ async fn main() -> std::io::Result<()> {
                     .route("/existing", web::post().to(users::name_exists))
                     .route("/login", web::post().to(users::login))
                     .route("/{uname}", web::get().to(users::user_details))
-                    .route("/new", web::post().to(users::new_user)),
+                    .route("/new", web::post().to(users::new_user))
+                    .route(
+                        "/change_password",
+                        web::post().to(users::change_password),
+                    ),
             )
             .route("/hey", web::get().to(manual_hello))
     })

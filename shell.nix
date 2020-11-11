@@ -9,8 +9,8 @@ let
         nixpkgs-mozilla
         (self: super:
         {
-          rustc = self.latest.rustChannels.nightly.rust;
-          cargo = self.latest.rustChannels.nightly.rust;
+          rustc = self.latest.rustChannels.stable.rust;
+          cargo = self.latest.rustChannels.stable.rust;
         }
         )
       ];
