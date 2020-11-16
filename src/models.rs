@@ -1,4 +1,6 @@
-use super::schema::members;
+use super::schema::{members, product};
+
+use bigdecimal::BigDecimal;
 use diesel::{Insertable, Queryable};
 use serde::{Deserialize, Serialize};
 
@@ -18,4 +20,22 @@ pub struct NewMember {
     pub password: String,
     pub phone_number: String,
     pub email_id: String,
+}
+
+#[derive(Queryable, Serialize)]
+pub struct Product {
+    pub id: i32,
+    pub name: String,
+    pub kind: Option<String>,
+    pub price: f32,
+    pub description: Option<String>,
+}
+
+#[derive(Insertable, Deserialize)]
+#[table_name = "product"]
+pub struct NewProduct {
+    pub name: String,
+    pub kind: Option<String>,
+    pub price: f32,
+    pub description: Option<String>,
 }
