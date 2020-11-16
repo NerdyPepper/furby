@@ -42,7 +42,12 @@ async fn main() -> std::io::Result<()> {
             )
             .service(
                 web::scope("/product")
-                    .route("/new", web::post().to(product::new_product)),
+                    .route("/{id}", web::get().to(product::product_details))
+                    .route("/new", web::post().to(product::new_product))
+                    .route(
+                        "/update_product/{id}",
+                        web::post().to(product::update_product),
+                    ),
             )
             .route("/hey", web::get().to(manual_hello))
     })

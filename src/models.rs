@@ -1,6 +1,5 @@
 use super::schema::{members, product};
 
-use bigdecimal::BigDecimal;
 use diesel::{Insertable, Queryable};
 use serde::{Deserialize, Serialize};
 
@@ -35,7 +34,11 @@ pub struct Product {
 #[table_name = "product"]
 pub struct NewProduct {
     pub name: String,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub kind: Option<String>,
     pub price: f32,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
 }

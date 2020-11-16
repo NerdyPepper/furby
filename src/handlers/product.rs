@@ -2,9 +2,7 @@ use crate::models::{NewProduct, Product};
 use crate::schema::product::dsl::*;
 use crate::TPool;
 
-use actix_identity::Identity;
 use actix_web::{web, HttpResponse, Responder};
-use bcrypt::{hash, verify, DEFAULT_COST};
 use diesel::prelude::*;
 use log::{error, info};
 use serde::Deserialize;
@@ -13,6 +11,7 @@ pub async fn new_product(
     pool: web::Data<TPool>,
     item: web::Json<NewProduct>,
 ) -> impl Responder {
+    info!("New product hit: {:?}", item.name);
     let conn = pool.get().unwrap();
     diesel::insert_into(product)
         .values(item.into_inner())
@@ -40,6 +39,42 @@ pub async fn product_details(
         Err(_) => {
             error!("Product not found: {}", product_id);
             HttpResponse::NotFound().finish()
+        }
+    }
+}
+
+#[derive(Deserialize)]
+pub struct UpdateProduct {
+    name: String,
+    kind: Option<String>,
+    price: f32,
+    description: Option<String>,
+}
+
+pub async fn update_product(
+    pool: web::Data<TPool>,
+    product_id: web::Path<i32>,
+    product_details: web::Json<UpdateProduct>,
+) -> impl Responder {
+    let conn = pool.get().unwrap();
+    let product_id = product_id.into_inner();
+    let product_details = product_details.into_inner();
+    info!("Updating product: {:?}", product_id);
+    match diesel::update(product.filter(id.eq(product_id)))
+        .set((
+            name.eq(product_details.name),
+            kind.eq(product_details.kind),
+            price.eq(product_details.price),
+            description.eq(product_details.description),
+        ))
+        .execute(&conn)
+    {
+        Ok(_) => {
+            return HttpResponse::Ok().body("Changed product successfully")
+        }
+        _ => {
+            return HttpResponse::InternalServerError()
+                .body("Unable to update record")
         }
     }
 }
