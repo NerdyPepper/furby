@@ -5,7 +5,7 @@ use actix_web::{web, App, HttpServer};
 use diesel::r2d2::{ConnectionManager, Pool};
 use diesel::MysqlConnection;
 use furby::handlers::smoke::manual_hello;
-use furby::handlers::users;
+use furby::handlers::{product, users};
 use rand::Rng;
 
 #[actix_web::main]
@@ -39,6 +39,10 @@ async fn main() -> std::io::Result<()> {
                         "/change_password",
                         web::post().to(users::change_password),
                     ),
+            )
+            .service(
+                web::scope("/product")
+                    .route("/new", web::post().to(product::new_product)),
             )
             .route("/hey", web::get().to(manual_hello))
     })
