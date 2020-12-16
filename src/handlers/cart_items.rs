@@ -102,8 +102,7 @@ pub async fn get_user_cart_items(
                     .expect("Couldn't connect to db")
             })
             .collect::<Vec<_>>();
-        return HttpResponse::Ok()
-            .body(serde_json::to_string(&cart_products).unwrap());
+        return HttpResponse::Ok().json(&cart_products);
     } else {
         return HttpResponse::Unauthorized()
             .body("Need to be logged in to add to cart!");
