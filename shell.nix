@@ -27,5 +27,7 @@ in
       curl
       diesel-cli
       libmysqlclient
+      jq
+      python3
     ];
   }
