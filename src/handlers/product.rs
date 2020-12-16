@@ -1,4 +1,4 @@
-use crate::models::{NewProduct, Product};
+use crate::models::{NewProduct, Product, UpdateProduct};
 use crate::schema::product::dsl::*;
 use crate::TPool;
 
@@ -43,14 +43,6 @@ pub async fn product_details(
     }
 }
 
-#[derive(Deserialize)]
-pub struct UpdateProduct {
-    name: String,
-    kind: Option<String>,
-    price: f32,
-    description: Option<String>,
-}
-
 pub async fn update_product(
     pool: web::Data<TPool>,
     product_id: web::Path<i32>,
@@ -75,6 +67,21 @@ pub async fn update_product(
         _ => {
             return HttpResponse::InternalServerError()
                 .body("Unable to update record")
+        }
+    }
+}
+
+pub async fn get_all_products(pool: web::Data<TPool>) -> impl Responder {
+    let conn = pool.get().unwrap();
+    info!("Generating and returning catalog ...");
+    match product.load::<Product>(&conn) {
+        Ok(products) => {
+            return HttpResponse::Ok()
+                .body(serde_json::to_string(&products).unwrap())
+        }
+        Err(_) => {
+            return HttpResponse::InternalServerError()
+                .body("Unable to fetch product catalog")
         }
     }
 }
