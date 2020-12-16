@@ -1,11 +1,11 @@
-use crate::models::{NewProduct, Product, UpdateProduct};
+use crate::models::{NewProduct, Product, Rating, UpdateProduct};
 use crate::schema::product::dsl::*;
+use crate::schema::rating::dsl as rating;
 use crate::TPool;
 
 use actix_web::{web, HttpResponse, Responder};
 use diesel::prelude::*;
 use log::{error, info};
-use serde::Deserialize;
 
 pub async fn new_product(
     pool: web::Data<TPool>,
@@ -75,13 +75,24 @@ pub async fn get_all_products(pool: web::Data<TPool>) -> impl Responder {
     let conn = pool.get().unwrap();
     info!("Generating and returning catalog ...");
     match product.load::<Product>(&conn) {
-        Ok(products) => {
-            return HttpResponse::Ok()
-                .body(serde_json::to_string(&products).unwrap())
-        }
+        Ok(products) => return HttpResponse::Ok().json(&products),
         Err(_) => {
             return HttpResponse::InternalServerError()
                 .body("Unable to fetch product catalog")
         }
     }
+}
+
+pub async fn get_product_reviews(
+    pool: web::Data<TPool>,
+    product_id: web::Path<i32>,
+) -> impl Responder {
+    let conn = pool.get().unwrap();
+    info!("Fetching product reviews for {}", product_id);
+    let pid = product_id.into_inner();
+    let rating_entries = rating::rating
+        .filter(rating::product_id.eq(pid))
+        .load::<Rating>(&conn)
+        .expect("Couldn't connect to DB");
+    return HttpResponse::Ok().json(&rating_entries);
 }

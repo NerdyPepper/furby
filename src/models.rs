@@ -1,5 +1,6 @@
 use super::schema::{cart_items, customer, product, rating, transaction};
 
+use chrono::naive::{NaiveDate, NaiveDateTime};
 use diesel::{Insertable, Queryable};
 use serde::{Deserialize, Serialize};
 
@@ -69,4 +70,28 @@ pub struct CartItem {
 pub struct AddCartItem {
     pub cart_id: i32,
     pub product_id: i32,
+}
+
+/* Rating */
+#[derive(Queryable, Serialize)]
+pub struct Rating {
+    pub id: i32,
+    pub comment_text: Option<String>,
+    pub comment_date: Option<NaiveDate>,
+    pub product_id: Option<i32>,
+    pub customer_id: Option<i32>,
+    pub stars: Option<i32>,
+}
+
+#[derive(Insertable, Deserialize)]
+#[table_name = "rating"]
+pub struct AddRating {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub comment_text: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stars: Option<i32>,
+
+    pub product_id: i32,
+    pub customer_id: i32,
 }

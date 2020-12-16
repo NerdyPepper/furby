@@ -2,7 +2,7 @@ http POST :7878/user/login username=akshay password=password
 
 http POST :7878/user/login username=akshay password=nigga
 
-http POST :7878/user/change_password Cookie:user-login=mKT3PRPSKJp/AdsfPCXg3GICmQW2wViUwUKPpsXKp+70ug== old_password=nigga new_password=nigga
+http POST :7878/user/change_password Cookie: old_password=nigga new_password=nigga
 
 http :7878/user/change_password username=akshay password=password
 
@@ -10,8 +10,12 @@ http :7878/product/catalog
 
 http :7878/product/1
 
-http POST :7878/cart/add Cookie:user-login=mKT3PRPSKJp/AdsfPCXg3GICmQW2wViUwUKPpsXKp+70ug== product_id:=1
+http POST :7878/cart/add Cookie: product_id:=1
 
-http :7878/cart/items Cookie:user-login=mKT3PRPSKJp/AdsfPCXg3GICmQW2wViUwUKPpsXKp+70ug==
+http :7878/cart/items Cookie:
 
 http POST :7878/cart/remove Cookie: product_id:=1
+
+http POST :7878/rating/add Cookie: product_id:=1 stars:=3 comment_text=Very good functional chair
+
+http :7878/product/reviews/1

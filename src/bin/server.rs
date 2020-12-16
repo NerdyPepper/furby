@@ -5,7 +5,7 @@ use actix_web::{web, App, HttpServer};
 use diesel::r2d2::{ConnectionManager, Pool};
 use diesel::MysqlConnection;
 use furby::handlers::smoke::manual_hello;
-use furby::handlers::{cart_items, product, users};
+use furby::handlers::{cart_items, product, rating, users};
 use rand::Rng;
 
 #[actix_web::main]
@@ -46,6 +46,10 @@ async fn main() -> std::io::Result<()> {
                     .route("/new", web::post().to(product::new_product))
                     .route("/{id}", web::get().to(product::product_details))
                     .route(
+                        "/reviews/{id}",
+                        web::get().to(product::get_product_reviews),
+                    )
+                    .route(
                         "/update_product/{id}",
                         web::post().to(product::update_product),
                     ),
@@ -61,6 +65,11 @@ async fn main() -> std::io::Result<()> {
                         "/remove",
                         web::post().to(cart_items::remove_from_cart),
                     ),
+            )
+            .service(
+                web::scope("/rating")
+                    .route("/add", web::post().to(rating::add_rating))
+                    .route("/remove", web::post().to(rating::remove_rating)),
             )
             .route("/hey", web::get().to(manual_hello))
     })
