@@ -1,11 +1,14 @@
-use crate::models::{NewProduct, Product, Rating, UpdateProduct};
+use crate::models::{Customer, NewProduct, Product, Rating, UpdateProduct};
+use crate::schema::customer::dsl as cust;
 use crate::schema::product::dsl::*;
 use crate::schema::rating::dsl as rating;
 use crate::TPool;
 
 use actix_web::{web, HttpResponse, Responder};
+use chrono::naive::NaiveDate;
 use diesel::prelude::*;
 use log::{error, info};
+use serde::{Deserialize, Serialize};
 
 pub async fn new_product(
     pool: web::Data<TPool>,
@@ -83,6 +86,15 @@ pub async fn get_all_products(pool: web::Data<TPool>) -> impl Responder {
     }
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+struct ProductRating {
+    pub comment_text: Option<String>,
+    pub comment_date: NaiveDate,
+    pub product_name: String,
+    pub customer_name: String,
+    pub stars: Option<i32>,
+}
+
 pub async fn get_product_reviews(
     pool: web::Data<TPool>,
     product_id: web::Path<i32>,
@@ -94,5 +106,33 @@ pub async fn get_product_reviews(
         .filter(rating::product_id.eq(pid))
         .load::<Rating>(&conn)
         .expect("Couldn't connect to DB");
-    return HttpResponse::Ok().json(&rating_entries);
+    let json_ratings = rating_entries
+        .into_iter()
+        .map(move |p| {
+            let selected_product = product
+                .filter(id.eq(&p.product_id.unwrap()))
+                .limit(1)
+                .first::<Product>(&conn)
+                .unwrap()
+                .name
+                .clone();
+
+            let selected_customer = cust::customer
+                .filter(cust::id.eq(&p.customer_id.unwrap()))
+                .limit(1)
+                .first::<Customer>(&conn)
+                .unwrap()
+                .username
+                .clone();
+
+            ProductRating {
+                comment_text: p.comment_text,
+                comment_date: p.comment_date.unwrap(),
+                product_name: selected_product,
+                customer_name: selected_customer,
+                stars: p.stars,
+            }
+        })
+        .collect::<Vec<_>>();
+    return HttpResponse::Ok().json(&json_ratings);
 }
