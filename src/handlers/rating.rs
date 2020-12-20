@@ -22,6 +22,7 @@ pub async fn add_rating(
     pool: web::Data<TPool>,
 ) -> impl Responder {
     info!("Add rating hit: {:?}", rating_details.product_id);
+    info!("{:?}", cookie.identity());
     let conn = pool.get().unwrap();
     if let Some(uname) = cookie.identity() {
         let selected_user = customer

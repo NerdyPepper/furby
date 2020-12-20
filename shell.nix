@@ -29,5 +29,6 @@ in
       libmysqlclient
       jq
       python3
+      insomnia
     ];
   }

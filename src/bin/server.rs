@@ -24,9 +24,24 @@ async fn main() -> std::io::Result<()> {
             .wrap(IdentityService::new(
                 CookieIdentityPolicy::new(&private_key)
                     .name("user-login")
+                    .domain("127.0.0.1")
+                    .path("/")
+                    .same_site(actix_web::cookie::SameSite::None)
+                    .http_only(true)
                     .secure(false),
             ))
-            .wrap(Cors::new().supports_credentials().finish())
+            .wrap(
+                Cors::default()
+                    .allowed_origin("http://127.0.0.1:8000")
+                    .allowed_origin("http://localhost:8000")
+                    .allow_any_method()
+                    .allow_any_header(),
+            )
+            .wrap(
+                middleware::DefaultHeaders::new()
+                    .header("Access-Control-Allow-Credentials", "true")
+                    .header("Access-Control-Expose-Headers", "set-cookie"),
+            )
             .wrap(middleware::Logger::default())
             .data(pool.clone())
             .service(

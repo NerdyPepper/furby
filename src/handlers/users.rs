@@ -57,6 +57,10 @@ pub async fn login(
     login_details: web::Json<Login>,
 ) -> impl Responder {
     info!("Login hit");
+    if let Some(uname) = cookie.identity() {
+        info!("Found existing cookie: {:?}", cookie.identity());
+        return HttpResponse::Ok().finish();
+    }
     let conn = pool.get().unwrap();
     let entered_pass = &login_details.password;
     let selected_user = customer
