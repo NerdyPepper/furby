@@ -13,6 +13,7 @@ pub async fn new_user(
     pool: web::Data<TPool>,
     item: web::Json<NewCustomer>,
 ) -> impl Responder {
+    info!("Creating ... {:?}", item.username);
     let conn = pool.get().unwrap();
     let hashed_item = NewCustomer {
         password: hash(&item.password, DEFAULT_COST).unwrap(),

@@ -9,17 +9,14 @@ use diesel::prelude::*;
 use log::{error, info};
 use serde::Deserialize;
 
-#[derive(Deserialize, Debug)]
-pub struct AddToCart {
-    product_id: i32,
-}
-
 pub async fn add_to_cart(
     cookie: Identity,
-    item_details: web::Json<AddToCart>,
+    item_id: String,
     pool: web::Data<TPool>,
 ) -> impl Responder {
-    info!("Add to cart hit: {:?}", item_details.product_id);
+    let item_details = item_id.parse::<i32>().unwrap_or(-1);
+    info!("Add to cart hit: {:?}", item_details);
+    info!("[cart] Current user: {:?}", cookie.identity());
     let conn = pool.get().unwrap();
     if let Some(uname) = cookie.identity() {
         let selected_user = customer
@@ -29,10 +26,14 @@ pub async fn add_to_cart(
             .expect("Couldn't connect to DB");
         let new_cart_item = AddCartItem {
             cart_id: selected_user.id,
-            product_id: item_details.product_id,
+            product_id: item_details,
         };
+        info!(
+            "cart id: {:?}, product id {:?}",
+            selected_user.id, item_details
+        );
         diesel::insert_into(cart_items)
-            .values(new_cart_item)
+            .values((cart_id.eq(selected_user.id), product_id.eq(item_details)))
             .execute(&conn)
             .expect("Coundn't connect to DB");
         HttpResponse::Ok().body("Inserted successfully!")
@@ -43,17 +44,13 @@ pub async fn add_to_cart(
     }
 }
 
-#[derive(Deserialize, Debug)]
-pub struct RemoveFromCart {
-    product_id: i32,
-}
-
 pub async fn remove_from_cart(
     cookie: Identity,
-    item_details: web::Json<RemoveFromCart>,
+    item_id: String,
     pool: web::Data<TPool>,
 ) -> impl Responder {
-    info!("Remove from cart hit: {:?}", item_details.product_id);
+    info!("Remove from cart hit: {:?}", item_id);
+    let item_details = item_id.parse::<i32>().unwrap_or(-1);
     let conn = pool.get().unwrap();
     if let Some(uname) = cookie.identity() {
         let selected_user = customer
@@ -65,7 +62,7 @@ pub async fn remove_from_cart(
         diesel::delete(
             cart_items
                 .filter(cart_id.eq(selected_user.id))
-                .filter(product_id.eq(item_details.product_id)),
+                .filter(product_id.eq(item_details)),
         )
         .execute(&conn)
         .expect("Coundn't connect to DB");
