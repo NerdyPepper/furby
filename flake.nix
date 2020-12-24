@@ -15,9 +15,9 @@
     pkgs = import nixpkgs { system = "x86_64-linux"; };
     mozilla = pkgs.callPackage (mozillapkgs + "/package-set.nix") {};
     rust = (mozilla.rustChannelOf {
-      date = "2020-12-23"; # get the current date with `date -I`
+      date = "2020-12-23";
       channel = "nightly";
-      sha256 = "LbKHsCOFXWpg/SEyACfzZuWjKbkXdH6EJKOPSGoO01E=";
+      sha256 = "LbKHsCOFXWpg/SEyACfzZuWjKbkXdH6EJKOPSGoO01E="; # set zeros after modifying channel or date
       }).rust;
     frontendPackages = with pkgs; [
       elmPackages.elm
@@ -37,7 +37,9 @@
     defaultPackage.x86_64-linux = stdenv.mkDerivation {
       name = "furby";
       src = "./.";
-      buildInputs = frontendPackages ++ backendPackages;
+      buildInputs = [ 
+        tokei
+      ] ++ frontendPackages ++ backendPackages;
     };
   };
 }

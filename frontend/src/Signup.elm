@@ -184,11 +184,15 @@ viewInput t p v toMsg =
 view : Model -> Html Msg
 view model =
     div []
-        [ viewInput "text" "Enter Username" model.username UserEntered
-        , viewInput "password" "Password" model.password PassEntered
-        , viewInput "text" "Email" model.emailId EmailEntered
-        , viewInput "text" "Enter your Phone number" model.phoneNumber PhoneEntered
-        , viewInput "text" "Enter Shipping address" (Maybe.withDefault "" model.address) AddressEntered
-        , button [ onClick CreatePressed ] [ text "Create" ]
+        [ div [] [ viewInput "text" "Enter Username" model.username UserEntered ]
+        , div [] [ viewInput "password" "Password" model.password PassEntered ]
+        , div [] [ viewInput "text" "Email" model.emailId EmailEntered ]
+        , div [] [ viewInput "text" "Enter your Phone number" model.phoneNumber PhoneEntered ]
+        , div [] [ viewInput "text" "Enter Shipping address" (Maybe.withDefault "" model.address) AddressEntered ]
+        , div [] [ button [ onClick CreatePressed ] [ text "Create" ] ]
+        , div []
+            [ text "Already have a account? "
+            , a [ href "/login" ] [ text "Login >" ]
+            ]
         , text (viewStatus model.status)
         ]
