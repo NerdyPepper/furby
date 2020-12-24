@@ -8,8 +8,15 @@ import Html.Events exposing (..)
 import Http
 import Json.Decode as D
 import Json.Encode as Encode
+import Tuple exposing (..)
 import Url
 import Url.Parser as P exposing ((</>), Parser, int, oneOf, s, string)
+import Utils exposing (..)
+
+
+type Order
+    = Rating
+    | Price
 
 
 type alias Product =
@@ -18,12 +25,25 @@ type alias Product =
     , kind : Maybe String
     , price : Float
     , description : Maybe String
+    , averageRating : Maybe Float
     }
+
+
+type alias Filters =
+    { price : ( Float, Float )
+    , rating : ( Float, Float )
+    }
+
+
+defaultFilters : Filters
+defaultFilters =
+    Filters ( -1, 10000 ) ( 0, 5 )
 
 
 type alias Model =
     { pageStatus : Status
     , products : List Product
+    , filters : Filters
     }
 
 
@@ -36,11 +56,15 @@ type Status
 type Msg
     = ProductsLoaded (Result Http.Error (List Product))
     | FetchProducts
+    | ChangePriceLower Float
+    | ChangePriceUpper Float
+    | ChangeRatingLower Float
+    | ChangeRatingUpper Float
 
 
 init : Model
 init =
-    Model NotLoaded []
+    Model NotLoaded [] defaultFilters
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -61,15 +85,56 @@ update msg model =
         FetchProducts ->
             ( { model | pageStatus = Loading }, fetchProducts )
 
+        ChangePriceLower v ->
+            let
+                fs =
+                    model.filters
+
+                nfs =
+                    { fs | price = mapFirst (always v) fs.price }
+            in
+            ( { model | filters = nfs }, Cmd.none )
+
+        ChangePriceUpper v ->
+            let
+                fs =
+                    model.filters
+
+                nfs =
+                    { fs | price = mapSecond (always v) fs.price }
+            in
+            ( { model | filters = nfs }, Cmd.none )
+
+        ChangeRatingLower v ->
+            let
+                fs =
+                    model.filters
+
+                nfs =
+                    { fs | rating = mapFirst (always v) fs.rating }
+            in
+            ( { model | filters = nfs }, Cmd.none )
+
+        ChangeRatingUpper v ->
+            let
+                fs =
+                    model.filters
+
+                nfs =
+                    { fs | rating = mapSecond (always v) fs.rating }
+            in
+            ( { model | filters = nfs }, Cmd.none )
+
 
 decodeProduct : D.Decoder Product
 decodeProduct =
-    D.map5 Product
+    D.map6 Product
         (D.field "id" D.int)
         (D.field "name" D.string)
         (D.field "kind" (D.nullable D.string))
         (D.field "price" D.float)
         (D.field "description" (D.nullable D.string))
+        (D.field "average_rating" (D.nullable D.float))
 
 
 decodeResponse : D.Decoder (List Product)
@@ -105,12 +170,61 @@ viewStatus s =
 viewProduct : Product -> Html Msg
 viewProduct p =
     div []
-        [ text p.name
-        , text <| Maybe.withDefault "" p.kind
-        , text <| Maybe.withDefault "" p.description
-        , text <| String.fromFloat p.price
-        , a [ href ("/product/" ++ String.fromInt p.id) ] [ text "View Product" ]
+        [ div [] [ text p.name ]
+        , div [] [ text <| Maybe.withDefault "" p.kind ]
+        , div [] [ text <| Maybe.withDefault "" p.description ]
+        , div [] [ text <| String.fromFloat p.price ]
+        , case p.averageRating of
+            Just v ->
+                text <| "Avg Rating: " ++ String.fromFloat v
+
+            Nothing ->
+                text "No Ratings"
+        , div [] [ a [ href ("/product/" ++ String.fromInt p.id) ] [ text "View Product" ] ]
         ]
+
+
+viewFilters : Model -> Html Msg
+viewFilters model =
+    let
+        priceRange =
+            range 0 50000 5000
+
+        ratingRange =
+            List.range 1 5
+
+        viewRange =
+            List.map (\i -> option [] [ text <| String.fromInt i ])
+
+        inp =
+            Maybe.withDefault 0 << String.toFloat
+    in
+    div []
+        [ div []
+            [ text "Price"
+            , select [ onInput (ChangePriceLower << inp) ] (viewRange priceRange)
+            , text "to"
+            , select [ onInput (ChangePriceUpper << inp) ] (viewRange priceRange)
+            ]
+        , div []
+            [ text "Rating"
+            , select [ onInput (ChangeRatingLower << inp) ] (viewRange ratingRange)
+            , text "to"
+            , select [ onInput (ChangeRatingUpper << inp) ] (viewRange ratingRange)
+            ]
+        ]
+
+
+filterProducts : Model -> List Product
+filterProducts model =
+    model.products
+        |> List.filter (between model.filters.price << .price)
+        |> List.filter
+            (\p ->
+                p.averageRating
+                    |> Maybe.withDefault 5.0
+                    |> between model.filters.rating
+            )
 
 
 view : Model -> Html Msg
@@ -121,5 +235,7 @@ view model =
 
         _ ->
             div []
-                [ ul [] (List.map viewProduct model.products)
+                [ div [] [ viewFilters model ]
+                , ul []
+                    (filterProducts model |> List.map viewProduct)
                 ]
