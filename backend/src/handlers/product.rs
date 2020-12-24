@@ -74,16 +74,53 @@ pub async fn update_product(
     }
 }
 
+#[derive(Serialize, Debug)]
+struct CatalogProduct {
+    pub id: i32,
+    pub name: String,
+    pub kind: Option<String>,
+    pub price: f32,
+    pub description: Option<String>,
+    pub average_rating: Option<f64>,
+}
+
 pub async fn get_all_products(pool: web::Data<TPool>) -> impl Responder {
     let conn = pool.get().unwrap();
     info!("Generating and returning catalog ...");
-    match product.load::<Product>(&conn) {
-        Ok(products) => return HttpResponse::Ok().json(&products),
-        Err(_) => {
-            return HttpResponse::InternalServerError()
-                .body("Unable to fetch product catalog")
-        }
-    }
+    let product_entries = product
+        .load::<Product>(&conn)
+        .expect("Couldn't connect to DB");
+    let with_rating_avg = product_entries
+        .into_iter()
+        .map(move |p| {
+            let rating_list = rating::rating
+                .filter(rating::product_id.eq(p.id))
+                .load::<Rating>(&conn)
+                .expect("Coundn't connect to DB")
+                .into_iter()
+                .map(|r| r.stars)
+                .collect::<Vec<_>>();
+            let (rating_sum, total) =
+                rating_list.into_iter().fold((0, 0), |(s, t), x| match x {
+                    Some(v) => (s + v, t + 1),
+                    None => (s, t),
+                });
+            let average_rating = if total != 0 {
+                Some(rating_sum as f64 / total as f64)
+            } else {
+                None
+            };
+            CatalogProduct {
+                average_rating,
+                name: p.name,
+                kind: p.kind,
+                price: p.price,
+                description: p.description,
+                id: p.id,
+            }
+        })
+        .collect::<Vec<_>>();
+    return HttpResponse::Ok().json(&with_rating_avg);
 }
 
 #[derive(Serialize, Deserialize, Debug)]
