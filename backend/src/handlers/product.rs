@@ -81,6 +81,8 @@ struct CatalogProduct {
     pub kind: Option<String>,
     pub price: f32,
     pub description: Option<String>,
+    pub src: Option<String>,
+    pub ios_src: Option<String>,
     pub average_rating: Option<f64>,
 }
 
@@ -116,6 +118,8 @@ pub async fn get_all_products(pool: web::Data<TPool>) -> impl Responder {
                 kind: p.kind,
                 price: p.price,
                 description: p.description,
+                src: p.src,
+                ios_src: p.ios_src,
                 id: p.id,
             }
         })
