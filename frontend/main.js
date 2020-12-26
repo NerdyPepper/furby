@@ -5430,7 +5430,7 @@ var $author$project$Product$Product = F7(
 		return {description: description, id: id, iosSrc: iosSrc, kind: kind, name: name, price: price, src: src};
 	});
 var $author$project$Product$emptyProduct = A7($author$project$Product$Product, -1, '', $elm$core$Maybe$Nothing, 0, $elm$core$Maybe$Nothing, '', '');
-var $author$project$Product$init = A6($author$project$Product$Model, $author$project$Product$NotLoaded, $author$project$Product$emptyProduct, _List_Nil, 0, '', $author$project$Product$NotSubmitted);
+var $author$project$Product$init = A6($author$project$Product$Model, $author$project$Product$NotLoaded, $author$project$Product$emptyProduct, _List_Nil, 5, '', $author$project$Product$NotSubmitted);
 var $author$project$Signup$Empty = {$: 'Empty'};
 var $author$project$Signup$Model = F6(
 	function (username, password, phoneNumber, emailId, address, status) {
@@ -6382,13 +6382,13 @@ var $author$project$Product$fetchListing = function (id) {
 var $author$project$Catalog$ProductsLoaded = function (a) {
 	return {$: 'ProductsLoaded', a: a};
 };
-var $author$project$Catalog$Product = F6(
-	function (id, name, kind, price, description, averageRating) {
-		return {averageRating: averageRating, description: description, id: id, kind: kind, name: name, price: price};
+var $author$project$Catalog$Product = F8(
+	function (id, name, kind, price, description, averageRating, src, iosSrc) {
+		return {averageRating: averageRating, description: description, id: id, iosSrc: iosSrc, kind: kind, name: name, price: price, src: src};
 	});
-var $elm$json$Json$Decode$map6 = _Json_map6;
-var $author$project$Catalog$decodeProduct = A7(
-	$elm$json$Json$Decode$map6,
+var $elm$json$Json$Decode$map8 = _Json_map8;
+var $author$project$Catalog$decodeProduct = A9(
+	$elm$json$Json$Decode$map8,
 	$author$project$Catalog$Product,
 	A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int),
 	A2($elm$json$Json$Decode$field, 'name', $elm$json$Json$Decode$string),
@@ -6404,7 +6404,9 @@ var $author$project$Catalog$decodeProduct = A7(
 	A2(
 		$elm$json$Json$Decode$field,
 		'average_rating',
-		$elm$json$Json$Decode$nullable($elm$json$Json$Decode$float)));
+		$elm$json$Json$Decode$nullable($elm$json$Json$Decode$float)),
+	A2($elm$json$Json$Decode$field, 'src', $elm$json$Json$Decode$string),
+	A2($elm$json$Json$Decode$field, 'ios_src', $elm$json$Json$Decode$string));
 var $author$project$Catalog$decodeResponse = $elm$json$Json$Decode$list($author$project$Catalog$decodeProduct);
 var $author$project$Catalog$fetchProducts = function () {
 	var _v0 = A2($elm$core$Debug$log, 'err', 'fetching products');
@@ -10086,6 +10088,7 @@ var $rtfeldman$elm_css$Css$prop1 = F2(
 	});
 var $rtfeldman$elm_css$Css$display = $rtfeldman$elm_css$Css$prop1('display');
 var $rtfeldman$elm_css$Css$border = $rtfeldman$elm_css$Css$prop1('border');
+var $rtfeldman$elm_css$Css$borderRadius = $rtfeldman$elm_css$Css$prop1('border-radius');
 var $rtfeldman$elm_css$Html$Styled$button = $rtfeldman$elm_css$Html$Styled$node('button');
 var $rtfeldman$elm_css$Css$color = function (c) {
 	return A2($rtfeldman$elm_css$Css$property, 'color', c.value);
@@ -10541,6 +10544,8 @@ var $author$project$Styles$furbyButton = A2(
 			$rtfeldman$elm_css$Css$px(40)),
 			$rtfeldman$elm_css$Css$border(
 			$rtfeldman$elm_css$Css$px(0)),
+			$rtfeldman$elm_css$Css$borderRadius(
+			$rtfeldman$elm_css$Css$px(2)),
 			A2(
 			$rtfeldman$elm_css$Css$padding2,
 			$rtfeldman$elm_css$Css$px(6),
@@ -10717,7 +10722,9 @@ var $author$project$Main$viewHeader = function (model) {
 							[
 								$rtfeldman$elm_css$Css$listStyle($rtfeldman$elm_css$Css$none),
 								$rtfeldman$elm_css$Css$padding(
-								$rtfeldman$elm_css$Css$px(0))
+								$rtfeldman$elm_css$Css$px(0)),
+								$rtfeldman$elm_css$Css$margin(
+								$rtfeldman$elm_css$Css$px(24))
 							]))
 					]),
 				_Utils_ap(
@@ -11228,70 +11235,260 @@ var $author$project$Catalog$viewFilters = function (model) {
 					]))
 			]));
 };
+var $elm$virtual_dom$VirtualDom$attribute = F2(
+	function (key, value) {
+		return A2(
+			_VirtualDom_attribute,
+			_VirtualDom_noOnOrFormAction(key),
+			_VirtualDom_noJavaScriptOrHtmlUri(value));
+	});
+var $rtfeldman$elm_css$VirtualDom$Styled$attribute = F2(
+	function (key, value) {
+		return A3(
+			$rtfeldman$elm_css$VirtualDom$Styled$Attribute,
+			A2($elm$virtual_dom$VirtualDom$attribute, key, value),
+			_List_Nil,
+			'');
+	});
+var $rtfeldman$elm_css$Html$Styled$Attributes$attribute = $rtfeldman$elm_css$VirtualDom$Styled$attribute;
+var $author$project$Utils$arIosSrc = function (src) {
+	return A2($rtfeldman$elm_css$Html$Styled$Attributes$attribute, 'ios-src', src);
+};
+var $author$project$Utils$arModes = function (mode) {
+	return A2($rtfeldman$elm_css$Html$Styled$Attributes$attribute, 'ar-modes', mode);
+};
+var $author$project$Utils$arSrc = function (src) {
+	return A2($rtfeldman$elm_css$Html$Styled$Attributes$attribute, 'src', src);
+};
+var $author$project$Utils$autoRotate = A2($rtfeldman$elm_css$Html$Styled$Attributes$attribute, 'auto-rotate', '');
+var $rtfeldman$elm_css$Css$bold = {fontWeight: $rtfeldman$elm_css$Css$Structure$Compatible, value: 'bold'};
+var $rtfeldman$elm_css$Css$border3 = $rtfeldman$elm_css$Css$prop3('border');
+var $author$project$Utils$cameraControls = A2($rtfeldman$elm_css$Html$Styled$Attributes$attribute, 'camera-controls', '');
+var $author$project$Styles$cardPrimaryText = $rtfeldman$elm_css$Css$fontSize(
+	$rtfeldman$elm_css$Css$px(18));
+var $rtfeldman$elm_css$Css$batch = $rtfeldman$elm_css$Css$Preprocess$ApplyStyles;
+var $author$project$Styles$cardSecondaryText = $rtfeldman$elm_css$Css$batch(
+	_List_fromArray(
+		[
+			$rtfeldman$elm_css$Css$color($author$project$Styles$theme.fgLight),
+			$rtfeldman$elm_css$Css$fontSize(
+			$rtfeldman$elm_css$Css$px(12))
+		]));
+var $author$project$Styles$cardSupportingText = $rtfeldman$elm_css$Css$fontSize(
+	$rtfeldman$elm_css$Css$px(16));
+var $rtfeldman$elm_css$Css$fontVariant = $rtfeldman$elm_css$Css$prop1('font-variant');
+var $rtfeldman$elm_css$Css$fontWeight = function (_v0) {
+	var value = _v0.value;
+	return A2($rtfeldman$elm_css$Css$property, 'font-weight', value);
+};
+var $author$project$Utils$loading = function (mode) {
+	return A2($rtfeldman$elm_css$Html$Styled$Attributes$attribute, 'loading', mode);
+};
+var $rtfeldman$elm_css$Css$marginBottom = $rtfeldman$elm_css$Css$prop1('margin-bottom');
+var $rtfeldman$elm_css$Css$maxWidth = $rtfeldman$elm_css$Css$prop1('max-width');
+var $author$project$Utils$modelViewer = F2(
+	function (attributes, children) {
+		return A3($rtfeldman$elm_css$Html$Styled$node, 'model-viewer', attributes, children);
+	});
+var $rtfeldman$elm_css$Css$Structure$PseudoElement = function (a) {
+	return {$: 'PseudoElement', a: a};
+};
+var $rtfeldman$elm_css$Css$Preprocess$WithPseudoElement = F2(
+	function (a, b) {
+		return {$: 'WithPseudoElement', a: a, b: b};
+	});
+var $rtfeldman$elm_css$Css$pseudoElement = function (element) {
+	return $rtfeldman$elm_css$Css$Preprocess$WithPseudoElement(
+		$rtfeldman$elm_css$Css$Structure$PseudoElement(element));
+};
+var $rtfeldman$elm_css$Css$before = $rtfeldman$elm_css$Css$pseudoElement('before');
+var $author$project$Styles$money = $rtfeldman$elm_css$Css$before(
+	_List_fromArray(
+		[
+			A2($rtfeldman$elm_css$Css$property, 'content', '\"₹ \"')
+		]));
+var $rtfeldman$elm_css$Css$smallCaps = {fontVariant: $rtfeldman$elm_css$Css$Structure$Compatible, fontVariantCaps: $rtfeldman$elm_css$Css$Structure$Compatible, value: 'small-caps'};
+var $rtfeldman$elm_css$Css$width = $rtfeldman$elm_css$Css$prop1('width');
 var $author$project$Catalog$viewProduct = function (p) {
 	return A2(
 		$rtfeldman$elm_css$Html$Styled$div,
-		_List_Nil,
+		_List_fromArray(
+			[
+				$rtfeldman$elm_css$Html$Styled$Attributes$css(
+				_List_fromArray(
+					[
+						$rtfeldman$elm_css$Css$marginBottom(
+						$rtfeldman$elm_css$Css$px(20)),
+						A3(
+						$rtfeldman$elm_css$Css$border3,
+						$rtfeldman$elm_css$Css$px(1),
+						$rtfeldman$elm_css$Css$solid,
+						$author$project$Styles$theme.primary),
+						$rtfeldman$elm_css$Css$borderRadius(
+						$rtfeldman$elm_css$Css$px(4)),
+						$rtfeldman$elm_css$Css$padding(
+						$rtfeldman$elm_css$Css$px(20)),
+						$rtfeldman$elm_css$Css$width(
+						$rtfeldman$elm_css$Css$pct(100)),
+						$rtfeldman$elm_css$Css$maxWidth(
+						$rtfeldman$elm_css$Css$px(650))
+					]))
+			]),
 		_List_fromArray(
 			[
 				A2(
 				$rtfeldman$elm_css$Html$Styled$div,
-				_List_Nil,
 				_List_fromArray(
 					[
-						$rtfeldman$elm_css$Html$Styled$text(p.name)
-					])),
-				A2(
-				$rtfeldman$elm_css$Html$Styled$div,
-				_List_Nil,
-				_List_fromArray(
-					[
-						$rtfeldman$elm_css$Html$Styled$text(
-						A2($elm$core$Maybe$withDefault, '', p.kind))
-					])),
-				A2(
-				$rtfeldman$elm_css$Html$Styled$div,
-				_List_Nil,
-				_List_fromArray(
-					[
-						$rtfeldman$elm_css$Html$Styled$text(
-						A2($elm$core$Maybe$withDefault, '', p.description))
-					])),
-				A2(
-				$rtfeldman$elm_css$Html$Styled$div,
-				_List_Nil,
-				_List_fromArray(
-					[
-						$rtfeldman$elm_css$Html$Styled$text(
-						$elm$core$String$fromFloat(p.price))
-					])),
-				function () {
-				var _v0 = p.averageRating;
-				if (_v0.$ === 'Just') {
-					var v = _v0.a;
-					return $rtfeldman$elm_css$Html$Styled$text(
-						'Avg Rating: ' + $elm$core$String$fromFloat(v));
-				} else {
-					return $rtfeldman$elm_css$Html$Styled$text('No Ratings');
-				}
-			}(),
-				A2(
-				$rtfeldman$elm_css$Html$Styled$div,
-				_List_Nil,
+						$rtfeldman$elm_css$Html$Styled$Attributes$css(
+						_List_fromArray(
+							[
+								$rtfeldman$elm_css$Css$float($rtfeldman$elm_css$Css$left),
+								$rtfeldman$elm_css$Css$width(
+								$rtfeldman$elm_css$Css$pct(50))
+							]))
+					]),
 				_List_fromArray(
 					[
 						A2(
-						$rtfeldman$elm_css$Html$Styled$a,
+						$author$project$Utils$modelViewer,
 						_List_fromArray(
 							[
-								$rtfeldman$elm_css$Html$Styled$Attributes$href(
-								'/product/' + $elm$core$String$fromInt(p.id))
+								$author$project$Utils$cameraControls,
+								$author$project$Utils$autoRotate,
+								$author$project$Utils$arSrc(p.src),
+								$author$project$Utils$arIosSrc(p.iosSrc),
+								$author$project$Utils$loading('eager'),
+								$author$project$Utils$arModes('webxr')
+							]),
+						_List_Nil)
+					])),
+				A2(
+				$rtfeldman$elm_css$Html$Styled$div,
+				_List_fromArray(
+					[
+						$rtfeldman$elm_css$Html$Styled$Attributes$css(
+						_List_fromArray(
+							[
+								$rtfeldman$elm_css$Css$float($rtfeldman$elm_css$Css$left),
+								$rtfeldman$elm_css$Css$width(
+								$rtfeldman$elm_css$Css$pct(50))
+							]))
+					]),
+				_List_fromArray(
+					[
+						A2(
+						$rtfeldman$elm_css$Html$Styled$div,
+						_List_fromArray(
+							[
+								$rtfeldman$elm_css$Html$Styled$Attributes$css(
+								_List_fromArray(
+									[
+										$author$project$Styles$cardSecondaryText,
+										$rtfeldman$elm_css$Css$paddingBottom(
+										$rtfeldman$elm_css$Css$px(3)),
+										$rtfeldman$elm_css$Css$fontVariant($rtfeldman$elm_css$Css$smallCaps)
+									]))
 							]),
 						_List_fromArray(
 							[
-								$rtfeldman$elm_css$Html$Styled$text('View Product')
+								$rtfeldman$elm_css$Html$Styled$text(
+								A2($elm$core$Maybe$withDefault, '', p.kind))
+							])),
+						A2(
+						$rtfeldman$elm_css$Html$Styled$div,
+						_List_fromArray(
+							[
+								$rtfeldman$elm_css$Html$Styled$Attributes$css(
+								_List_fromArray(
+									[
+										$author$project$Styles$cardPrimaryText,
+										$rtfeldman$elm_css$Css$paddingBottom(
+										$rtfeldman$elm_css$Css$px(3))
+									]))
+							]),
+						_List_fromArray(
+							[
+								A2(
+								$rtfeldman$elm_css$Html$Styled$a,
+								_List_fromArray(
+									[
+										$rtfeldman$elm_css$Html$Styled$Attributes$href(
+										'/product/' + $elm$core$String$fromInt(p.id))
+									]),
+								_List_fromArray(
+									[
+										$rtfeldman$elm_css$Html$Styled$text(p.name)
+									]))
+							])),
+						A2(
+						$rtfeldman$elm_css$Html$Styled$div,
+						_List_fromArray(
+							[
+								$rtfeldman$elm_css$Html$Styled$Attributes$css(
+								_List_fromArray(
+									[
+										$author$project$Styles$cardSecondaryText,
+										$rtfeldman$elm_css$Css$paddingBottom(
+										$rtfeldman$elm_css$Css$px(12))
+									]))
+							]),
+						_List_fromArray(
+							[
+								function () {
+								var _v0 = p.averageRating;
+								if (_v0.$ === 'Just') {
+									var v = _v0.a;
+									return $rtfeldman$elm_css$Html$Styled$text(
+										'Avg Rating: ' + $elm$core$String$fromFloat(v));
+								} else {
+									return $rtfeldman$elm_css$Html$Styled$text('No Ratings');
+								}
+							}()
+							])),
+						A2(
+						$rtfeldman$elm_css$Html$Styled$div,
+						_List_fromArray(
+							[
+								$rtfeldman$elm_css$Html$Styled$Attributes$css(
+								_List_fromArray(
+									[
+										$author$project$Styles$cardSupportingText,
+										$rtfeldman$elm_css$Css$paddingBottom(
+										$rtfeldman$elm_css$Css$px(6))
+									]))
+							]),
+						_List_fromArray(
+							[
+								$rtfeldman$elm_css$Html$Styled$text(
+								A2($elm$core$Maybe$withDefault, 'No description provided', p.description))
+							])),
+						A2(
+						$rtfeldman$elm_css$Html$Styled$div,
+						_List_fromArray(
+							[
+								$rtfeldman$elm_css$Html$Styled$Attributes$css(
+								_List_fromArray(
+									[
+										$rtfeldman$elm_css$Css$fontWeight($rtfeldman$elm_css$Css$bold),
+										$rtfeldman$elm_css$Css$fontSize(
+										$rtfeldman$elm_css$Css$px(14)),
+										$author$project$Styles$money
+									]))
+							]),
+						_List_fromArray(
+							[
+								$rtfeldman$elm_css$Html$Styled$text(
+								$elm$core$String$fromFloat(p.price))
 							]))
-					]))
+					])),
+				A2(
+				$rtfeldman$elm_css$Html$Styled$div,
+				_List_fromArray(
+					[
+						A2($rtfeldman$elm_css$Html$Styled$Attributes$style, 'clear', 'both')
+					]),
+				_List_Nil)
 			]));
 };
 var $author$project$Catalog$viewStatus = function (s) {
@@ -11304,7 +11501,6 @@ var $author$project$Catalog$viewStatus = function (s) {
 			return 'Not loaded ...';
 	}
 };
-var $rtfeldman$elm_css$Css$width = $rtfeldman$elm_css$Css$prop1('width');
 var $author$project$Catalog$view = function (model) {
 	var _v0 = model.pageStatus;
 	if (_v0.$ === 'Loading') {
@@ -11380,7 +11576,8 @@ var $author$project$Catalog$view = function (model) {
 									_List_fromArray(
 										[
 											$rtfeldman$elm_css$Css$padding(
-											$rtfeldman$elm_css$Css$px(0))
+											$rtfeldman$elm_css$Css$px(0)),
+											$rtfeldman$elm_css$Css$listStyle($rtfeldman$elm_css$Css$none)
 										]))
 								]),
 							A2(
@@ -11685,7 +11882,6 @@ var $author$project$Product$AddRatingComment = function (a) {
 	return {$: 'AddRatingComment', a: a};
 };
 var $author$project$Product$AddRatingPressed = {$: 'AddRatingPressed'};
-var $author$project$Product$AddToCartPressed = {$: 'AddToCartPressed'};
 var $author$project$Product$viewInput = F4(
 	function (t, p, v, toMsg) {
 		return A2(
@@ -11699,80 +11895,37 @@ var $author$project$Product$viewInput = F4(
 				]),
 			_List_Nil);
 	});
-var $elm$virtual_dom$VirtualDom$attribute = F2(
-	function (key, value) {
-		return A2(
-			_VirtualDom_attribute,
-			_VirtualDom_noOnOrFormAction(key),
-			_VirtualDom_noJavaScriptOrHtmlUri(value));
-	});
-var $rtfeldman$elm_css$VirtualDom$Styled$attribute = F2(
-	function (key, value) {
-		return A3(
-			$rtfeldman$elm_css$VirtualDom$Styled$Attribute,
-			A2($elm$virtual_dom$VirtualDom$attribute, key, value),
-			_List_Nil,
-			'');
-	});
-var $rtfeldman$elm_css$Html$Styled$Attributes$attribute = $rtfeldman$elm_css$VirtualDom$Styled$attribute;
-var $author$project$Utils$arIosSrc = function (src) {
-	return A2($rtfeldman$elm_css$Html$Styled$Attributes$attribute, 'ios-src', src);
-};
-var $author$project$Utils$arModes = function (mode) {
-	return A2($rtfeldman$elm_css$Html$Styled$Attributes$attribute, 'ar-modes', mode);
-};
-var $author$project$Utils$arSrc = function (src) {
-	return A2($rtfeldman$elm_css$Html$Styled$Attributes$attribute, 'src', src);
-};
-var $author$project$Utils$autoRotate = A2($rtfeldman$elm_css$Html$Styled$Attributes$attribute, 'auto-rotate', '');
-var $author$project$Utils$cameraControls = A2($rtfeldman$elm_css$Html$Styled$Attributes$attribute, 'camera-controls', '');
-var $author$project$Utils$loading = function (mode) {
-	return A2($rtfeldman$elm_css$Html$Styled$Attributes$attribute, 'loading', mode);
-};
-var $author$project$Utils$modelViewer = F2(
-	function (attributes, children) {
-		return A3($rtfeldman$elm_css$Html$Styled$node, 'model-viewer', attributes, children);
-	});
+var $author$project$Product$AddToCartPressed = {$: 'AddToCartPressed'};
 var $author$project$Product$viewProduct = function (p) {
 	return A2(
 		$rtfeldman$elm_css$Html$Styled$div,
-		_List_Nil,
+		_List_fromArray(
+			[
+				$rtfeldman$elm_css$Html$Styled$Attributes$css(
+				_List_fromArray(
+					[
+						$rtfeldman$elm_css$Css$marginBottom(
+						$rtfeldman$elm_css$Css$px(20)),
+						$rtfeldman$elm_css$Css$padding(
+						$rtfeldman$elm_css$Css$px(20)),
+						$rtfeldman$elm_css$Css$width(
+						$rtfeldman$elm_css$Css$pct(100))
+					]))
+			]),
 		_List_fromArray(
 			[
 				A2(
 				$rtfeldman$elm_css$Html$Styled$div,
-				_List_Nil,
 				_List_fromArray(
 					[
-						$rtfeldman$elm_css$Html$Styled$text(p.name)
-					])),
-				A2(
-				$rtfeldman$elm_css$Html$Styled$div,
-				_List_Nil,
-				_List_fromArray(
-					[
-						$rtfeldman$elm_css$Html$Styled$text(
-						A2($elm$core$Maybe$withDefault, '', p.kind))
-					])),
-				A2(
-				$rtfeldman$elm_css$Html$Styled$div,
-				_List_Nil,
-				_List_fromArray(
-					[
-						$rtfeldman$elm_css$Html$Styled$text(
-						A2($elm$core$Maybe$withDefault, '', p.description))
-					])),
-				A2(
-				$rtfeldman$elm_css$Html$Styled$div,
-				_List_Nil,
-				_List_fromArray(
-					[
-						$rtfeldman$elm_css$Html$Styled$text(
-						$elm$core$String$fromFloat(p.price))
-					])),
-				A2(
-				$rtfeldman$elm_css$Html$Styled$div,
-				_List_Nil,
+						$rtfeldman$elm_css$Html$Styled$Attributes$css(
+						_List_fromArray(
+							[
+								$rtfeldman$elm_css$Css$float($rtfeldman$elm_css$Css$left),
+								$rtfeldman$elm_css$Css$width(
+								$rtfeldman$elm_css$Css$pct(50))
+							]))
+					]),
 				_List_fromArray(
 					[
 						A2(
@@ -11787,21 +11940,348 @@ var $author$project$Product$viewProduct = function (p) {
 								$author$project$Utils$arModes('webxr')
 							]),
 						_List_Nil)
-					]))
+					])),
+				A2(
+				$rtfeldman$elm_css$Html$Styled$div,
+				_List_fromArray(
+					[
+						$rtfeldman$elm_css$Html$Styled$Attributes$css(
+						_List_fromArray(
+							[
+								$rtfeldman$elm_css$Css$float($rtfeldman$elm_css$Css$left),
+								$rtfeldman$elm_css$Css$width(
+								$rtfeldman$elm_css$Css$pct(50))
+							]))
+					]),
+				_List_fromArray(
+					[
+						A2(
+						$rtfeldman$elm_css$Html$Styled$div,
+						_List_fromArray(
+							[
+								$rtfeldman$elm_css$Html$Styled$Attributes$css(
+								_List_fromArray(
+									[
+										$author$project$Styles$cardSecondaryText,
+										$rtfeldman$elm_css$Css$paddingBottom(
+										$rtfeldman$elm_css$Css$px(3)),
+										$rtfeldman$elm_css$Css$fontVariant($rtfeldman$elm_css$Css$smallCaps)
+									]))
+							]),
+						_List_fromArray(
+							[
+								$rtfeldman$elm_css$Html$Styled$text(
+								A2($elm$core$Maybe$withDefault, '', p.kind))
+							])),
+						A2(
+						$rtfeldman$elm_css$Html$Styled$div,
+						_List_fromArray(
+							[
+								$rtfeldman$elm_css$Html$Styled$Attributes$css(
+								_List_fromArray(
+									[
+										$author$project$Styles$cardPrimaryText,
+										$rtfeldman$elm_css$Css$paddingBottom(
+										$rtfeldman$elm_css$Css$px(12))
+									]))
+							]),
+						_List_fromArray(
+							[
+								$rtfeldman$elm_css$Html$Styled$text(p.name)
+							])),
+						A2(
+						$rtfeldman$elm_css$Html$Styled$div,
+						_List_fromArray(
+							[
+								$rtfeldman$elm_css$Html$Styled$Attributes$css(
+								_List_fromArray(
+									[
+										$author$project$Styles$cardSupportingText,
+										$rtfeldman$elm_css$Css$paddingBottom(
+										$rtfeldman$elm_css$Css$px(6))
+									]))
+							]),
+						_List_fromArray(
+							[
+								$rtfeldman$elm_css$Html$Styled$text(
+								A2($elm$core$Maybe$withDefault, 'No description provided', p.description))
+							])),
+						A2(
+						$rtfeldman$elm_css$Html$Styled$div,
+						_List_fromArray(
+							[
+								$rtfeldman$elm_css$Html$Styled$Attributes$css(
+								_List_fromArray(
+									[
+										$rtfeldman$elm_css$Css$fontWeight($rtfeldman$elm_css$Css$bold),
+										$rtfeldman$elm_css$Css$fontSize(
+										$rtfeldman$elm_css$Css$px(14)),
+										$author$project$Styles$money
+									]))
+							]),
+						_List_fromArray(
+							[
+								$rtfeldman$elm_css$Html$Styled$text(
+								$elm$core$String$fromFloat(p.price)),
+								A2(
+								$rtfeldman$elm_css$Html$Styled$div,
+								_List_Nil,
+								_List_fromArray(
+									[
+										A2(
+										$author$project$Styles$furbyButton,
+										_List_fromArray(
+											[
+												$rtfeldman$elm_css$Html$Styled$Events$onClick($author$project$Product$AddToCartPressed)
+											]),
+										_List_fromArray(
+											[
+												$rtfeldman$elm_css$Html$Styled$text('Add To Cart')
+											]))
+									]))
+							]))
+					])),
+				A2(
+				$rtfeldman$elm_css$Html$Styled$div,
+				_List_fromArray(
+					[
+						A2($rtfeldman$elm_css$Html$Styled$Attributes$style, 'clear', 'both')
+					]),
+				_List_Nil)
 			]));
+};
+var $elm$core$List$repeatHelp = F3(
+	function (result, n, value) {
+		repeatHelp:
+		while (true) {
+			if (n <= 0) {
+				return result;
+			} else {
+				var $temp$result = A2($elm$core$List$cons, value, result),
+					$temp$n = n - 1,
+					$temp$value = value;
+				result = $temp$result;
+				n = $temp$n;
+				value = $temp$value;
+				continue repeatHelp;
+			}
+		}
+	});
+var $elm$core$List$repeat = F2(
+	function (n, value) {
+		return A3($elm$core$List$repeatHelp, _List_Nil, n, value);
+	});
+var $rtfeldman$elm_css$VirtualDom$Styled$unstyledNode = $rtfeldman$elm_css$VirtualDom$Styled$Unstyled;
+var $rtfeldman$elm_css$Html$Styled$fromUnstyled = $rtfeldman$elm_css$VirtualDom$Styled$unstyledNode;
+var $elm$svg$Svg$Attributes$class = _VirtualDom_attribute('class');
+var $elm$svg$Svg$Attributes$fill = _VirtualDom_attribute('fill');
+var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
+var $elm$svg$Svg$map = $elm$virtual_dom$VirtualDom$map;
+var $elm$svg$Svg$Attributes$stroke = _VirtualDom_attribute('stroke');
+var $elm$svg$Svg$Attributes$strokeLinecap = _VirtualDom_attribute('stroke-linecap');
+var $elm$svg$Svg$Attributes$strokeLinejoin = _VirtualDom_attribute('stroke-linejoin');
+var $elm$svg$Svg$Attributes$strokeWidth = _VirtualDom_attribute('stroke-width');
+var $elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
+var $elm$svg$Svg$svg = $elm$svg$Svg$trustedNode('svg');
+var $elm$svg$Svg$Attributes$viewBox = _VirtualDom_attribute('viewBox');
+var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
+var $1602$elm_feather$FeatherIcons$toHtml = F2(
+	function (attributes, _v0) {
+		var src = _v0.a.src;
+		var attrs = _v0.a.attrs;
+		var strSize = $elm$core$String$fromFloat(attrs.size);
+		var baseAttributes = _List_fromArray(
+			[
+				$elm$svg$Svg$Attributes$fill('none'),
+				$elm$svg$Svg$Attributes$height(
+				_Utils_ap(strSize, attrs.sizeUnit)),
+				$elm$svg$Svg$Attributes$width(
+				_Utils_ap(strSize, attrs.sizeUnit)),
+				$elm$svg$Svg$Attributes$stroke('currentColor'),
+				$elm$svg$Svg$Attributes$strokeLinecap('round'),
+				$elm$svg$Svg$Attributes$strokeLinejoin('round'),
+				$elm$svg$Svg$Attributes$strokeWidth(
+				$elm$core$String$fromFloat(attrs.strokeWidth)),
+				$elm$svg$Svg$Attributes$viewBox(attrs.viewBox)
+			]);
+		var combinedAttributes = _Utils_ap(
+			function () {
+				var _v1 = attrs._class;
+				if (_v1.$ === 'Just') {
+					var c = _v1.a;
+					return A2(
+						$elm$core$List$cons,
+						$elm$svg$Svg$Attributes$class(c),
+						baseAttributes);
+				} else {
+					return baseAttributes;
+				}
+			}(),
+			attributes);
+		return A2(
+			$elm$svg$Svg$svg,
+			combinedAttributes,
+			A2(
+				$elm$core$List$map,
+				$elm$svg$Svg$map($elm$core$Basics$never),
+				src));
+	});
+var $1602$elm_feather$FeatherIcons$Icon = function (a) {
+	return {$: 'Icon', a: a};
+};
+var $1602$elm_feather$FeatherIcons$withSize = F2(
+	function (size, _v0) {
+		var attrs = _v0.a.attrs;
+		var src = _v0.a.src;
+		return $1602$elm_feather$FeatherIcons$Icon(
+			{
+				attrs: _Utils_update(
+					attrs,
+					{size: size}),
+				src: src
+			});
+	});
+var $author$project$Icons$convert = A2(
+	$elm$core$Basics$composeL,
+	A2(
+		$elm$core$Basics$composeL,
+		$rtfeldman$elm_css$Html$Styled$fromUnstyled,
+		$1602$elm_feather$FeatherIcons$toHtml(_List_Nil)),
+	$1602$elm_feather$FeatherIcons$withSize(14));
+var $1602$elm_feather$FeatherIcons$defaultAttributes = function (name) {
+	return {
+		_class: $elm$core$Maybe$Just('feather feather-' + name),
+		size: 24,
+		sizeUnit: '',
+		strokeWidth: 2,
+		viewBox: '0 0 24 24'
+	};
+};
+var $1602$elm_feather$FeatherIcons$makeBuilder = F2(
+	function (name, src) {
+		return $1602$elm_feather$FeatherIcons$Icon(
+			{
+				attrs: $1602$elm_feather$FeatherIcons$defaultAttributes(name),
+				src: src
+			});
+	});
+var $elm$svg$Svg$Attributes$points = _VirtualDom_attribute('points');
+var $elm$svg$Svg$polygon = $elm$svg$Svg$trustedNode('polygon');
+var $1602$elm_feather$FeatherIcons$xmlns = function (s) {
+	return A2(
+		$elm$virtual_dom$VirtualDom$property,
+		'xmlns',
+		$elm$json$Json$Encode$string(s));
+};
+var $1602$elm_feather$FeatherIcons$star = A2(
+	$1602$elm_feather$FeatherIcons$makeBuilder,
+	'star',
+	_List_fromArray(
+		[
+			A2(
+			$elm$svg$Svg$svg,
+			_List_fromArray(
+				[
+					$1602$elm_feather$FeatherIcons$xmlns('http://www.w3.org/2000/svg'),
+					$elm$svg$Svg$Attributes$width('24'),
+					$elm$svg$Svg$Attributes$height('24'),
+					$elm$svg$Svg$Attributes$viewBox('0 0 24 24'),
+					$elm$svg$Svg$Attributes$fill('none'),
+					$elm$svg$Svg$Attributes$stroke('currentColor'),
+					$elm$svg$Svg$Attributes$strokeWidth('2'),
+					$elm$svg$Svg$Attributes$strokeLinecap('round'),
+					$elm$svg$Svg$Attributes$strokeLinejoin('round'),
+					$elm$svg$Svg$Attributes$class('feather feather-star')
+				]),
+			_List_fromArray(
+				[
+					A2(
+					$elm$svg$Svg$polygon,
+					_List_fromArray(
+						[
+							$elm$svg$Svg$Attributes$points('12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2')
+						]),
+					_List_Nil)
+				]))
+		]));
+var $author$project$Icons$starIcon = $author$project$Icons$convert($1602$elm_feather$FeatherIcons$star);
+var $author$project$Product$viewStarRating = function (i) {
+	return A2(
+		$rtfeldman$elm_css$Html$Styled$div,
+		_List_Nil,
+		A2($elm$core$List$repeat, i, $author$project$Icons$starIcon));
 };
 var $author$project$Product$viewRating = function (r) {
 	return A2(
 		$rtfeldman$elm_css$Html$Styled$div,
-		_List_Nil,
 		_List_fromArray(
 			[
-				$rtfeldman$elm_css$Html$Styled$text(r.customerName + ' posted on '),
-				$rtfeldman$elm_css$Html$Styled$text(r.commentDate + ' '),
-				$rtfeldman$elm_css$Html$Styled$text(
-				A2($elm$core$Maybe$withDefault, '', r.commentText)),
-				$rtfeldman$elm_css$Html$Styled$text(
-				' Stars: ' + $elm$core$String$fromInt(r.stars))
+				$rtfeldman$elm_css$Html$Styled$Attributes$css(
+				_List_fromArray(
+					[
+						A3(
+						$rtfeldman$elm_css$Css$border3,
+						$rtfeldman$elm_css$Css$px(1),
+						$rtfeldman$elm_css$Css$solid,
+						$author$project$Styles$theme.primary),
+						$rtfeldman$elm_css$Css$borderRadius(
+						$rtfeldman$elm_css$Css$px(4)),
+						$rtfeldman$elm_css$Css$marginBottom(
+						$rtfeldman$elm_css$Css$px(20)),
+						$rtfeldman$elm_css$Css$padding(
+						$rtfeldman$elm_css$Css$px(20))
+					]))
+			]),
+		_List_fromArray(
+			[
+				A2(
+				$rtfeldman$elm_css$Html$Styled$div,
+				_List_fromArray(
+					[
+						$rtfeldman$elm_css$Html$Styled$Attributes$css(
+						_List_fromArray(
+							[
+								$rtfeldman$elm_css$Css$fontSize(
+								$rtfeldman$elm_css$Css$px(16)),
+								$rtfeldman$elm_css$Css$fontWeight($rtfeldman$elm_css$Css$bold),
+								$rtfeldman$elm_css$Css$paddingBottom(
+								$rtfeldman$elm_css$Css$px(3))
+							]))
+					]),
+				_List_fromArray(
+					[
+						$rtfeldman$elm_css$Html$Styled$text(r.customerName)
+					])),
+				$author$project$Product$viewStarRating(r.stars),
+				A2(
+				$rtfeldman$elm_css$Html$Styled$div,
+				_List_fromArray(
+					[
+						$rtfeldman$elm_css$Html$Styled$Attributes$css(
+						_List_fromArray(
+							[
+								$author$project$Styles$cardSecondaryText,
+								$rtfeldman$elm_css$Css$paddingBottom(
+								$rtfeldman$elm_css$Css$px(12))
+							]))
+					]),
+				_List_fromArray(
+					[
+						$rtfeldman$elm_css$Html$Styled$text('Reviewed on ' + r.commentDate)
+					])),
+				(!_Utils_eq(r.commentText, $elm$core$Maybe$Nothing)) ? A2(
+				$rtfeldman$elm_css$Html$Styled$div,
+				_List_fromArray(
+					[
+						$rtfeldman$elm_css$Html$Styled$Attributes$css(
+						_List_fromArray(
+							[$author$project$Styles$cardSupportingText]))
+					]),
+				_List_fromArray(
+					[
+						$rtfeldman$elm_css$Html$Styled$text(
+						A2($elm$core$Maybe$withDefault, '', r.commentText))
+					])) : $rtfeldman$elm_css$Html$Styled$text('')
 			]));
 };
 var $author$project$Product$AddRatingStars = function (a) {
@@ -11827,7 +12307,7 @@ var $author$project$Product$viewStars = A2(
 					]));
 		},
 		_List_fromArray(
-			[0, 1, 2, 3, 4, 5])));
+			[1, 2, 3, 4, 5])));
 var $author$project$Product$viewStatus = function (s) {
 	switch (s.$) {
 		case 'Loading':
@@ -11852,7 +12332,16 @@ var $author$project$Product$view = function (model) {
 	} else {
 		return A2(
 			$rtfeldman$elm_css$Html$Styled$div,
-			_List_Nil,
+			_List_fromArray(
+				[
+					$rtfeldman$elm_css$Html$Styled$Attributes$css(
+					_List_fromArray(
+						[
+							$rtfeldman$elm_css$Css$width(
+							$rtfeldman$elm_css$Css$pct(60)),
+							$rtfeldman$elm_css$Css$margin($rtfeldman$elm_css$Css$auto)
+						]))
+				]),
 			_List_fromArray(
 				[
 					A2(
@@ -11863,8 +12352,29 @@ var $author$project$Product$view = function (model) {
 							$author$project$Product$viewProduct(model.listing)
 						])),
 					A2(
+					$rtfeldman$elm_css$Html$Styled$div,
+					_List_fromArray(
+						[
+							$rtfeldman$elm_css$Html$Styled$Attributes$css(
+							_List_fromArray(
+								[$author$project$Styles$cardPrimaryText]))
+						]),
+					_List_fromArray(
+						[
+							$rtfeldman$elm_css$Html$Styled$text('User Reviews')
+						])),
+					_Utils_eq(model.ratings, _List_Nil) ? $rtfeldman$elm_css$Html$Styled$text('Be the first to add a review.') : A2(
 					$rtfeldman$elm_css$Html$Styled$ul,
-					_List_Nil,
+					_List_fromArray(
+						[
+							$rtfeldman$elm_css$Html$Styled$Attributes$css(
+							_List_fromArray(
+								[
+									$rtfeldman$elm_css$Css$padding(
+									$rtfeldman$elm_css$Css$px(0)),
+									$rtfeldman$elm_css$Css$listStyle($rtfeldman$elm_css$Css$none)
+								]))
+						]),
 					A2($elm$core$List$map, $author$project$Product$viewRating, model.ratings)),
 					A2(
 					$rtfeldman$elm_css$Html$Styled$div,
@@ -11889,22 +12399,6 @@ var $author$project$Product$view = function (model) {
 							_List_fromArray(
 								[
 									$rtfeldman$elm_css$Html$Styled$text('Submit Rating')
-								]))
-						])),
-					A2(
-					$rtfeldman$elm_css$Html$Styled$div,
-					_List_Nil,
-					_List_fromArray(
-						[
-							A2(
-							$rtfeldman$elm_css$Html$Styled$button,
-							_List_fromArray(
-								[
-									$rtfeldman$elm_css$Html$Styled$Events$onClick($author$project$Product$AddToCartPressed)
-								]),
-							_List_fromArray(
-								[
-									$rtfeldman$elm_css$Html$Styled$text('Add To Cart')
 								]))
 						])),
 					A2(

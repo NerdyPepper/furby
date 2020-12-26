@@ -2,3 +2,5 @@ target/
 elm-stuff
 .envrc
 result
+frontend/main.js
+frontend/index.html

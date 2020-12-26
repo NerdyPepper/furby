@@ -2,13 +2,16 @@ module Product exposing (..)
 
 import Browser
 import Browser.Navigation as Nav
+import Css exposing (..)
 import Html
 import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (..)
 import Html.Styled.Events exposing (..)
 import Http
+import Icons exposing (..)
 import Json.Decode as D
 import Json.Encode as Encode
+import Styles exposing (..)
 import Url
 import Url.Parser as P exposing ((</>), Parser, int, oneOf, s, string)
 import Utils exposing (..)
@@ -77,7 +80,7 @@ type Msg
 
 init : Model
 init =
-    Model NotLoaded emptyProduct [] 0 "" NotSubmitted
+    Model NotLoaded emptyProduct [] 5 "" NotSubmitted
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -251,12 +254,19 @@ viewStatus s =
 
 viewProduct : Product -> Html Msg
 viewProduct p =
-    div []
-        [ div [] [ text p.name ]
-        , div [] [ text <| Maybe.withDefault "" p.kind ]
-        , div [] [ text <| Maybe.withDefault "" p.description ]
-        , div [] [ text <| String.fromFloat p.price ]
-        , div []
+    div
+        [ css
+            [ marginBottom (px 20)
+            , padding (px 20)
+            , Css.width (pct 100)
+            ]
+        ]
+        [ div
+            [ css
+                [ float left
+                , Css.width (pct 50)
+                ]
+            ]
             [ modelViewer
                 [ cameraControls
                 , autoRotate
@@ -267,16 +277,96 @@ viewProduct p =
                 ]
                 []
             ]
+        , div
+            [ css
+                [ float left
+                , Css.width (pct 50)
+                ]
+            ]
+            [ div
+                [ css
+                    [ cardSecondaryText
+                    , paddingBottom (px 3)
+                    , fontVariant smallCaps
+                    ]
+                ]
+                [ text <| Maybe.withDefault "" p.kind ]
+            , div
+                [ css
+                    [ cardPrimaryText
+                    , paddingBottom (px 12)
+                    ]
+                ]
+                [ text p.name ]
+            , div
+                [ css
+                    [ cardSupportingText
+                    , paddingBottom (px 6)
+                    ]
+                ]
+                [ text <| Maybe.withDefault "No description provided" p.description ]
+            , div
+                [ css
+                    [ fontWeight bold
+                    , fontSize (px 14)
+                    , money
+                    ]
+                ]
+                [ text <| String.fromFloat p.price
+                , div []
+                    [ furbyButton [ onClick AddToCartPressed ] [ text "Add To Cart" ]
+                    ]
+                ]
+            ]
+        , div [ style "clear" "both" ] []
         ]
+
+
+viewStarRating : Int -> Html Msg
+viewStarRating i =
+    div []
+        (List.repeat i starIcon)
 
 
 viewRating : Rating -> Html Msg
 viewRating r =
-    div []
-        [ text <| r.customerName ++ " posted on "
-        , text <| r.commentDate ++ " "
-        , text <| Maybe.withDefault "" r.commentText
-        , text <| " Stars: " ++ String.fromInt r.stars
+    -- div []
+    --     [ text <| r.customerName ++ " posted on "
+    --     , text <| r.commentDate ++ " "
+    --     , text <| Maybe.withDefault "" r.commentText
+    --     , text <| " Stars: " ++ String.fromInt r.stars
+    --     ]
+    div
+        [ css
+            [ border3 (px 1) solid theme.primary
+            , borderRadius (px 4)
+            , marginBottom (px 20)
+            , padding (px 20)
+            ]
+        ]
+        [ div
+            [ css
+                [ fontSize (px 16)
+                , fontWeight bold
+                , paddingBottom (px 3)
+                ]
+            ]
+            [ text r.customerName ]
+        , viewStarRating r.stars
+        , div
+            [ css
+                [ cardSecondaryText
+                , paddingBottom (px 12)
+                ]
+            ]
+            [ text <| "Reviewed on " ++ r.commentDate ]
+        , if r.commentText /= Nothing then
+            div
+                [ css [ cardSupportingText ] ]
+                [ text <| Maybe.withDefault "" <| r.commentText ]
+
+          else
+            text ""
         ]
 
 
@@ -290,7 +380,7 @@ viewStars =
     ul []
         (List.map
             (\i -> button [ onClick (AddRatingStars i) ] [ text <| String.fromInt i ])
-            [ 0, 1, 2, 3, 4, 5 ]
+            [ 1, 2, 3, 4, 5 ]
         )
 
 
@@ -301,17 +391,35 @@ view model =
             div [] [ text <| viewStatus Loading ]
 
         _ ->
-            div []
+            div
+                [ css
+                    [ Css.width (pct 60)
+                    , margin auto
+                    ]
+                ]
                 [ div [] [ viewProduct model.listing ]
-                , ul [] (List.map viewRating model.ratings)
+                , div
+                    [ css
+                        [ cardPrimaryText
+                        ]
+                    ]
+                    [ text "User Reviews" ]
+                , if model.ratings == [] then
+                    text "Be the first to add a review."
+
+                  else
+                    ul
+                        [ css
+                            [ padding (px 0)
+                            , listStyle Css.none
+                            ]
+                        ]
+                        (List.map viewRating model.ratings)
                 , div [] [ text "Add Rating: " ]
                 , div []
                     [ viewStars
                     , viewInput "text" "Enter Comment Text" model.ratingText AddRatingComment
                     , button [ onClick AddRatingPressed ] [ text "Submit Rating" ]
-                    ]
-                , div []
-                    [ button [ onClick AddToCartPressed ] [ text "Add To Cart" ]
                     ]
                 , div []
                     [ a [ href "/catalog" ] [ text "Back to catalog" ]

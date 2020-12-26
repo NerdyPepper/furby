@@ -27,6 +27,8 @@ type alias Product =
     , price : Float
     , description : Maybe String
     , averageRating : Maybe Float
+    , src : String
+    , iosSrc : String
     }
 
 
@@ -129,13 +131,15 @@ update msg model =
 
 decodeProduct : D.Decoder Product
 decodeProduct =
-    D.map6 Product
+    D.map8 Product
         (D.field "id" D.int)
         (D.field "name" D.string)
         (D.field "kind" (D.nullable D.string))
         (D.field "price" D.float)
         (D.field "description" (D.nullable D.string))
         (D.field "average_rating" (D.nullable D.float))
+        (D.field "src" D.string)
+        (D.field "ios_src" D.string)
 
 
 decodeResponse : D.Decoder (List Product)
@@ -170,18 +174,83 @@ viewStatus s =
 
 viewProduct : Product -> Html Msg
 viewProduct p =
-    div []
-        [ div [] [ text p.name ]
-        , div [] [ text <| Maybe.withDefault "" p.kind ]
-        , div [] [ text <| Maybe.withDefault "" p.description ]
-        , div [] [ text <| String.fromFloat p.price ]
-        , case p.averageRating of
-            Just v ->
-                text <| "Avg Rating: " ++ String.fromFloat v
+    div
+        [ css
+            [ marginBottom (px 20)
+            , border3 (px 1) solid theme.primary
+            , borderRadius (px 4)
+            , padding (px 20)
+            , Css.width (pct 100)
+            , maxWidth (px 650)
+            ]
+        ]
+        [ div
+            [ css
+                [ float left
+                , Css.width (pct 50)
+                ]
+            ]
+            [ modelViewer
+                [ cameraControls
+                , autoRotate
+                , arSrc p.src
+                , arIosSrc p.iosSrc
+                , loading "eager"
+                , arModes "webxr"
+                ]
+                []
+            ]
+        , div
+            [ css
+                [ float left
+                , Css.width (pct 50)
+                ]
+            ]
+            [ div
+                [ css
+                    [ cardSecondaryText
+                    , paddingBottom (px 3)
+                    , fontVariant smallCaps
+                    ]
+                ]
+                [ text <| Maybe.withDefault "" p.kind ]
+            , div
+                [ css
+                    [ cardPrimaryText
+                    , paddingBottom (px 3)
+                    ]
+                ]
+                [ a [ href ("/product/" ++ String.fromInt p.id) ] [ text p.name ] ]
+            , div
+                [ css
+                    [ cardSecondaryText
+                    , paddingBottom (px 12)
+                    ]
+                ]
+                [ case p.averageRating of
+                    Just v ->
+                        text <| "Avg Rating: " ++ String.fromFloat v
 
-            Nothing ->
-                text "No Ratings"
-        , div [] [ a [ href ("/product/" ++ String.fromInt p.id) ] [ text "View Product" ] ]
+                    Nothing ->
+                        text "No Ratings"
+                ]
+            , div
+                [ css
+                    [ cardSupportingText
+                    , paddingBottom (px 6)
+                    ]
+                ]
+                [ text <| Maybe.withDefault "No description provided" p.description ]
+            , div
+                [ css
+                    [ fontWeight bold
+                    , fontSize (px 14)
+                    , money
+                    ]
+                ]
+                [ text <| String.fromFloat p.price ]
+            ]
+        , div [ style "clear" "both" ] []
         ]
 
 
@@ -260,7 +329,10 @@ view model =
                     ]
                     [ div [ css [ bigHeading ] ] [ text "Products" ]
                     , ul
-                        [ css [ padding (px 0) ]
+                        [ css
+                            [ padding (px 0)
+                            , listStyle Css.none
+                            ]
                         ]
                         (filterProducts model |> List.map viewProduct)
                     ]

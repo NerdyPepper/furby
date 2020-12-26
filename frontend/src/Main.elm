@@ -403,6 +403,7 @@ viewHeader model =
                 [ css
                     [ listStyle Css.none
                     , padding (px 0)
+                    , margin (px 24)
                     ]
                 ]
         ]

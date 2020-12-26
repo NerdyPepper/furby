@@ -60,6 +60,7 @@ furbyButton =
         , color theme.fg
         , Css.height (px 40)
         , border (px 0)
+        , borderRadius (px 2)
         , padding2 (px 6) (px 12)
         , backgroundColor theme.primary
         , hover
@@ -102,3 +103,23 @@ loginInputField =
 bigHeading : Style
 bigHeading =
     fontSize (px 24)
+
+
+
+-- card styles
+
+
+cardPrimaryText =
+    fontSize (px 18)
+
+
+cardSecondaryText =
+    Css.batch [ color theme.fgLight, fontSize (px 12) ]
+
+
+cardSupportingText =
+    fontSize (px 16)
+
+
+money =
+    before [ Css.property "content" "\"₹ \"" ]
