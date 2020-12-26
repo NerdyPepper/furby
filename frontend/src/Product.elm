@@ -2,14 +2,16 @@ module Product exposing (..)
 
 import Browser
 import Browser.Navigation as Nav
-import Html exposing (..)
-import Html.Attributes exposing (..)
-import Html.Events exposing (..)
+import Html
+import Html.Styled exposing (..)
+import Html.Styled.Attributes exposing (..)
+import Html.Styled.Events exposing (..)
 import Http
 import Json.Decode as D
 import Json.Encode as Encode
 import Url
 import Url.Parser as P exposing ((</>), Parser, int, oneOf, s, string)
+import Utils exposing (..)
 
 
 type SubmitStatus
@@ -25,11 +27,13 @@ type alias Product =
     , kind : Maybe String
     , price : Float
     , description : Maybe String
+    , src : String
+    , iosSrc : String
     }
 
 
 emptyProduct =
-    Product -1 "" Nothing 0 Nothing
+    Product -1 "" Nothing 0 Nothing "" ""
 
 
 type alias Rating =
@@ -140,12 +144,14 @@ update msg model =
 
 decodeProduct : D.Decoder Product
 decodeProduct =
-    D.map5 Product
+    D.map7 Product
         (D.field "id" D.int)
         (D.field "name" D.string)
         (D.field "kind" (D.nullable D.string))
         (D.field "price" D.float)
         (D.field "description" (D.nullable D.string))
+        (D.field "src" D.string)
+        (D.field "ios_src" D.string)
 
 
 decodeRating : D.Decoder Rating
@@ -246,10 +252,21 @@ viewStatus s =
 viewProduct : Product -> Html Msg
 viewProduct p =
     div []
-        [ text p.name
-        , text <| Maybe.withDefault "" p.kind
-        , text <| Maybe.withDefault "" p.description
-        , text <| String.fromFloat p.price
+        [ div [] [ text p.name ]
+        , div [] [ text <| Maybe.withDefault "" p.kind ]
+        , div [] [ text <| Maybe.withDefault "" p.description ]
+        , div [] [ text <| String.fromFloat p.price ]
+        , div []
+            [ modelViewer
+                [ cameraControls
+                , autoRotate
+                , arSrc p.src
+                , arIosSrc p.iosSrc
+                , loading "eager"
+                , arModes "webxr"
+                ]
+                []
+            ]
         ]
 
 

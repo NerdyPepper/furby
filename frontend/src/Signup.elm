@@ -2,11 +2,14 @@ module Signup exposing (..)
 
 import Browser
 import Browser.Navigation as Nav
-import Html exposing (..)
-import Html.Attributes exposing (..)
-import Html.Events exposing (..)
+import Css exposing (..)
+import Html
+import Html.Styled exposing (..)
+import Html.Styled.Attributes exposing (..)
+import Html.Styled.Events exposing (..)
 import Http
 import Json.Encode as Encode
+import Styles exposing (..)
 import Url
 import Url.Parser as P exposing ((</>), Parser, int, oneOf, s, string)
 
@@ -178,19 +181,41 @@ viewStatus s =
 
 viewInput : String -> String -> String -> (String -> msg) -> Html msg
 viewInput t p v toMsg =
-    input [ type_ t, placeholder p, value v, onInput toMsg ] []
+    loginInputField [ type_ t, placeholder p, value v, onInput toMsg ] []
+
+
+fieldPadding =
+    css
+        [ paddingTop (px 10)
+        , paddingBottom (px 10)
+        ]
 
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ div [] [ viewInput "text" "Enter Username" model.username UserEntered ]
-        , div [] [ viewInput "password" "Password" model.password PassEntered ]
-        , div [] [ viewInput "text" "Email" model.emailId EmailEntered ]
-        , div [] [ viewInput "text" "Enter your Phone number" model.phoneNumber PhoneEntered ]
-        , div [] [ viewInput "text" "Enter Shipping address" (Maybe.withDefault "" model.address) AddressEntered ]
-        , div [] [ button [ onClick CreatePressed ] [ text "Create" ] ]
-        , div []
+    div
+        [ css
+            [ margin auto
+            , marginTop (pct 10)
+            , padding (px 20)
+            , Css.width (pct 30)
+            ]
+        ]
+        [ div [ fieldPadding, css [ bigHeading ] ] [ text "Signup" ]
+        , div [ fieldPadding ] [ viewInput "text" "Username" model.username UserEntered ]
+        , div [ fieldPadding ] [ viewInput "password" "Password" model.password PassEntered ]
+        , div [ fieldPadding ] [ viewInput "text" "Email" model.emailId EmailEntered ]
+        , div [ fieldPadding ] [ viewInput "text" "Phone Number" model.phoneNumber PhoneEntered ]
+        , div [ fieldPadding ] [ viewInput "text" "Shipping Address" (Maybe.withDefault "" model.address) AddressEntered ]
+        , div
+            [ fieldPadding
+            , css [ textAlign center ]
+            ]
+            [ furbyButton
+                [ onClick CreatePressed ]
+                [ text "Create Account" ]
+            ]
+        , div [ fieldPadding ]
             [ text "Already have a account? "
             , a [ href "/login" ] [ text "Login >" ]
             ]

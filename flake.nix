@@ -24,6 +24,7 @@
       elmPackages.elm-language-server
       elmPackages.elm-format
       nodePackages.elm-oracle
+      elmPackages.elm-live
       elmPackages.elm-test
     ];
     backendPackages = with pkgs; [

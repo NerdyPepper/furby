@@ -2,15 +2,16 @@ module Catalog exposing (..)
 
 import Browser
 import Browser.Navigation as Nav
-import Html exposing (..)
-import Html.Attributes exposing (..)
-import Html.Events exposing (..)
+import Css exposing (..)
+import Html
+import Html.Styled exposing (..)
+import Html.Styled.Attributes exposing (..)
+import Html.Styled.Events exposing (..)
 import Http
 import Json.Decode as D
 import Json.Encode as Encode
+import Styles exposing (..)
 import Tuple exposing (..)
-import Url
-import Url.Parser as P exposing ((</>), Parser, int, oneOf, s, string)
 import Utils exposing (..)
 
 
@@ -37,7 +38,7 @@ type alias Filters =
 
 defaultFilters : Filters
 defaultFilters =
-    Filters ( -1, 10000 ) ( 0, 5 )
+    Filters ( -1, 100000 ) ( 0, 5 )
 
 
 type alias Model =
@@ -199,18 +200,26 @@ viewFilters model =
         inp =
             Maybe.withDefault 0 << String.toFloat
     in
-    div []
-        [ div []
-            [ text "Price"
-            , select [ onInput (ChangePriceLower << inp) ] (viewRange 0 priceRange)
+    div
+        []
+        [ div
+            [ css
+                [ bigHeading
+                , paddingBottom (px 12)
+                ]
+            ]
+            [ text "Filters" ]
+        , div []
+            [ div [] [ text "Price" ]
+            , furbySelect [ onInput (ChangePriceLower << inp), style "appearance" "none" ] (viewRange 0 priceRange)
             , text "to"
-            , select [ onInput (ChangePriceUpper << inp) ] (viewRange 50000 priceRange)
+            , furbySelect [ onInput (ChangePriceUpper << inp), style "appearance" "none" ] (viewRange 50000 priceRange)
             ]
         , div []
-            [ text "Rating"
-            , select [ onInput (ChangeRatingLower << inp) ] (viewRange 1 ratingRange)
+            [ div [] [ text "Rating" ]
+            , furbySelect [ onInput (ChangeRatingLower << inp), style "appearance" "none" ] (viewRange 1 ratingRange)
             , text "to"
-            , select [ onInput (ChangeRatingUpper << inp) ] (viewRange 5 ratingRange)
+            , furbySelect [ onInput (ChangeRatingUpper << inp), style "appearance" "none" ] (viewRange 5 ratingRange)
             ]
         ]
 
@@ -234,8 +243,25 @@ view model =
             div [] [ text <| viewStatus Loading ]
 
         _ ->
-            div []
-                [ div [] [ viewFilters model ]
-                , ul []
-                    (filterProducts model |> List.map viewProduct)
+            div
+                [ css [ padding (px 40) ] ]
+                [ div
+                    [ css
+                        [ float left
+                        , Css.width (pct 20)
+                        ]
+                    ]
+                    [ viewFilters model ]
+                , div
+                    [ css
+                        [ float left
+                        , Css.width (pct 80)
+                        ]
+                    ]
+                    [ div [ css [ bigHeading ] ] [ text "Products" ]
+                    , ul
+                        [ css [ padding (px 0) ]
+                        ]
+                        (filterProducts model |> List.map viewProduct)
+                    ]
                 ]

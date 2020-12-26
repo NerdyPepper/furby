@@ -2,11 +2,15 @@ module Login exposing (..)
 
 import Browser
 import Browser.Navigation as Nav
-import Html exposing (..)
-import Html.Attributes exposing (..)
-import Html.Events exposing (..)
+import Css exposing (..)
+import Html
+import Html.Styled exposing (..)
+import Html.Styled.Attributes exposing (..)
+import Html.Styled.Events exposing (..)
 import Http
+import Icons exposing (..)
 import Json.Encode as Encode
+import Styles exposing (..)
 import Url
 import Url.Parser as P exposing ((</>), Parser, int, oneOf, s, string)
 
@@ -91,7 +95,7 @@ viewStatus : LoginStatus -> String
 viewStatus ls =
     case ls of
         NotLoggedIn ->
-            "Not Logged In"
+            ""
 
         InvalidLogin ->
             "Invalid Login"
@@ -105,15 +109,30 @@ viewStatus ls =
 
 viewInput : String -> String -> String -> (String -> msg) -> Html msg
 viewInput t p v toMsg =
-    input [ type_ t, placeholder p, value v, onInput toMsg ] []
+    loginInputField [ type_ t, placeholder p, value v, onInput toMsg ] []
+
+
+fieldPadding =
+    css
+        [ paddingTop (px 10)
+        , paddingBottom (px 10)
+        ]
 
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ div [] [ viewInput "text" "Enter name here" model.username UserEntered ]
-        , div [] [ viewInput "password" "Password" model.password PassEntered ]
-        , div [] [ button [ onClick LoginPressed ] [ text "Login" ] ]
-        , div [] [ text (viewStatus model.loginStatus) ]
-        , div [] [ text "Don't have an account? ", a [ href "/signup" ] [ text "Register now!" ] ]
+    div
+        [ css
+            [ margin auto
+            , marginTop (pct 10)
+            , padding (px 20)
+            , Css.width (pct 30)
+            ]
+        ]
+        [ div [ fieldPadding, css [ bigHeading ] ] [ text "Login" ]
+        , div [ fieldPadding ] [ viewInput "text" "Enter name here" model.username UserEntered ]
+        , div [ fieldPadding ] [ viewInput "password" "Password" model.password PassEntered ]
+        , div [ css [ textAlign center ], fieldPadding ] [ furbyButton [ onClick LoginPressed ] [ text "Login" ] ]
+        , div [ css [ textAlign center ] ] [ text (viewStatus model.loginStatus) ]
+        , div [ fieldPadding ] [ text "Don't have an account? ", a [ href "/signup" ] [ text "Register now!" ] ]
         ]

@@ -5,14 +5,17 @@ import Browser.Navigation as Nav
 import Cart
 import Catalog
 import Checkout
-import Html exposing (..)
-import Html.Attributes exposing (..)
-import Html.Events exposing (..)
+import Css exposing (..)
+import Html
+import Html.Styled exposing (..)
+import Html.Styled.Attributes exposing (..)
+import Html.Styled.Events exposing (..)
 import Http
 import Json.Encode as Encode
 import Login
 import Product
 import Signup
+import Styles exposing (..)
 import Url
 import Url.Parser as P exposing ((</>), Parser, int, oneOf, s, string)
 
@@ -276,56 +279,93 @@ subscriptions _ =
 view : Model -> Browser.Document Msg
 view model =
     case model.location of
+        HomePage ->
+            { title = "Login"
+            , body =
+                -- model.loginModel
+                --     |> Login.view
+                --     |> Html.Styled.map LoginMessage
+                --     |> toUnstyled
+                --     |> List.singleton
+                div []
+                    [ ul []
+                        (List.map
+                            (\l ->
+                                li []
+                                    [ a [ href l ] [ text l ] ]
+                            )
+                            [ "/login", "/catalog", "/cart" ]
+                        )
+                    ]
+                    |> toUnstyled
+                    |> List.singleton
+            }
+
         LoginPage ->
             { title = "Login"
-            , body = [ Html.map LoginMessage (Login.view model.loginModel) ]
+            , body =
+                model.loginModel
+                    |> Login.view
+                    |> Html.Styled.map LoginMessage
+                    |> toUnstyled
+                    |> List.singleton
             }
 
         SignupPage ->
             { title = "Signup"
-            , body = [ Html.map SignupMessage (Signup.view model.signupModel) ]
-            }
-
-        HomePage ->
-            { title = "URL Interceptor"
             , body =
-                [ text "The current URL is: "
-                , b [] [ text (Url.toString model.url) ]
-                , ul []
-                    [ viewLink "/login"
-                    , viewLink "/catalog"
-                    , viewLink "/cart"
-                    , viewLink "/signup"
-                    ]
-                ]
+                model.signupModel
+                    |> Signup.view
+                    |> Html.Styled.map SignupMessage
+                    |> toUnstyled
+                    |> List.singleton
             }
 
         NotFoundPage ->
             { title = "404 - Not Found"
             , body =
-                [ text "404 - Not Found"
-                , a [ href "/" ] [ text "Go back >" ]
-                ]
+                div []
+                    [ text "404 - Not Found"
+                    , a [ href "/" ] [ text "Go back >" ]
+                    ]
+                    |> toUnstyled
+                    |> List.singleton
             }
 
         CatalogPage ->
             { title = "Catalog"
-            , body = pageWrap model (Html.map CatalogMessage (Catalog.view model.catalogModel))
+            , body =
+                model.catalogModel
+                    |> Catalog.view
+                    |> Html.Styled.map CatalogMessage
+                    |> pageWrap model
             }
 
         CartPage ->
             { title = "Cart"
-            , body = pageWrap model (Html.map CartMessage (Cart.view model.cartModel))
+            , body =
+                model.cartModel
+                    |> Cart.view
+                    |> Html.Styled.map CartMessage
+                    |> pageWrap model
             }
 
         CheckoutPage ->
             { title = "Checkout"
-            , body = pageWrap model (Html.map CheckoutMessage (Checkout.view model.checkoutModel))
+            , body =
+                model.checkoutModel
+                    |> Checkout.view
+                    |> Html.Styled.map CheckoutMessage
+                    |> pageWrap model
             }
 
         ProductPage item ->
             { title = "Product " ++ String.fromInt item
-            , body = pageWrap model (Html.map ProductMessage (Product.view model.productModel))
+            , body =
+                model.productModel
+                    |> Product.view
+                    |> Html.Styled.map ProductMessage
+                    |> pageWrap model
             }
 
 
@@ -333,36 +373,49 @@ viewHeader : Model -> Html Msg
 viewHeader model =
     let
         links =
-            [ ( "Home", "/" )
-            , ( "Catalog", "/catalog" )
+            [ ( "Catalog", "/catalog" )
             , ( "Cart", "/cart" )
             ]
     in
-    div []
+    div
+        [ css
+            [ padding (px 40)
+            , paddingTop (px 3)
+            , paddingBottom (px 3)
+            , textAlign left
+            , backgroundColor theme.secondary
+            ]
+        ]
         [ List.map
             (\( name, loc ) ->
-                li []
-                    [ a [ href loc ] [ text name ]
+                li [ css [ display inline ] ]
+                    [ headerLink [ href loc ] [ text name ]
                     ]
             )
             links
             ++ [ if model.loginModel.loginStatus /= Login.LoggedIn then
-                    li [] [ a [ href "/login" ] [ text "Login" ] ]
+                    li [ css [ display inline ] ] [ headerLink [ href "/login" ] [ text "Login" ] ]
 
                  else
-                    button [ onClick LogoutPressed ] [ text "Logout" ]
+                    furbyButton [ onClick LogoutPressed ] [ text "Logout" ]
                ]
-            |> ul []
+            |> ul
+                [ css
+                    [ listStyle Css.none
+                    , padding (px 0)
+                    ]
+                ]
         ]
 
 
-pageWrap : Model -> Html Msg -> List (Html Msg)
+pageWrap : Model -> Html Msg -> List (Html.Html Msg)
 pageWrap model page =
-    [ div []
+    div []
         [ viewHeader model
         , page
         ]
-    ]
+        |> toUnstyled
+        |> List.singleton
 
 
 viewLink : String -> Html msg
