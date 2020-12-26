@@ -24,6 +24,8 @@ table! {
         kind -> Nullable<Varchar>,
         price -> Float,
         description -> Nullable<Varchar>,
+        src -> Nullable<Text>,
+        ios_src -> Nullable<Text>,
     }
 }
 

@@ -1,6 +1,8 @@
 {
-    "name": "Urban Ladder Teak Chair",
+    "name": "Teak Chair",
     "kind": "Chair",
     "price": 3500,
-    "description": "Sleek, modern chair for offices and workplaces"
+    "description": "High quality teak chair ideal for casual use.",
+    "src": "https://poly.googleusercontent.com/downloads/c/fp/1607083617515204/7Jl72KgiRl-/2lfpoCUD7hi/WoodChair_01(1).gltf",
+    "ios_src": "https://poly.googleusercontent.com/downloads/c/fp/1607083617515204/7Jl72KgiRl-/40_ivv2I3M2/WoodChair_01(1).usdz"
 }

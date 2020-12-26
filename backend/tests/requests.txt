@@ -19,3 +19,5 @@ http POST :7878/cart/remove Cookie: product_id:=1
 http POST :7878/rating/add Cookie: product_id:=1 stars:=3 comment_text=Very good functional chair
 
 http :7878/product/reviews/1
+
+http :7878/transaction/list Cookie:
