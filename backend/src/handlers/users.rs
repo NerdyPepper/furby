@@ -58,7 +58,7 @@ pub async fn login(
     login_details: web::Json<Login>,
 ) -> impl Responder {
     info!("Login hit");
-    if let Some(uname) = cookie.identity() {
+    if cookie.identity().is_some() {
         info!("Found existing cookie: {:?}", cookie.identity());
         return HttpResponse::Ok().finish();
     }
@@ -84,7 +84,7 @@ pub async fn login(
 
 pub async fn logout(cookie: Identity) -> impl Responder {
     cookie.forget();
-    HttpResponse::Found().header("location", "/").finish()
+    HttpResponse::Ok().body("Successful logout.")
 }
 
 pub async fn user_details(

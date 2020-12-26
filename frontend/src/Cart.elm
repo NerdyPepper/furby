@@ -21,9 +21,15 @@ type alias Product =
     }
 
 
+type alias CartListing =
+    { productItem : Product
+    , quantity : Int
+    }
+
+
 type alias Model =
     { pageStatus : Status
-    , products : List Product
+    , products : List CartListing
     }
 
 
@@ -34,10 +40,12 @@ type Status
 
 
 type Msg
-    = CartLoaded (Result Http.Error (List Product))
+    = CartLoaded (Result Http.Error (List CartListing))
     | FetchCartItems
     | RemoveFromCart Int
     | CartItemRemoved (Result Http.Error ())
+    | AddToCartSuccess (Result Http.Error ())
+    | AddToCartPressed Int
 
 
 init : Model
@@ -69,6 +77,12 @@ update msg model =
         FetchCartItems ->
             ( { model | pageStatus = Loading }, fetchCartItems )
 
+        AddToCartPressed id ->
+            ( model, addToCart id )
+
+        AddToCartSuccess _ ->
+            ( { model | pageStatus = Loading }, fetchCartItems )
+
 
 decodeProduct : D.Decoder Product
 decodeProduct =
@@ -80,9 +94,13 @@ decodeProduct =
         (D.field "description" (D.nullable D.string))
 
 
-decodeResponse : D.Decoder (List Product)
+decodeResponse : D.Decoder (List CartListing)
 decodeResponse =
-    D.list decodeProduct
+    D.list
+        (D.map2 CartListing
+            (D.field "product_item" decodeProduct)
+            (D.field "quantity" D.int)
+        )
 
 
 removeProduct : Int -> Cmd Msg
@@ -132,15 +150,45 @@ viewStatus s =
             "Not loaded ..."
 
 
-viewProduct : Product -> Html Msg
-viewProduct p =
+addToCart : Int -> Cmd Msg
+addToCart id =
+    let
+        _ =
+            Debug.log "err" <| "adding to cart: " ++ String.fromInt id
+    in
+    Http.riskyRequest
+        { method = "POST"
+        , headers = []
+        , url = "http://127.0.0.1:7878/cart/add"
+        , body = Http.stringBody "applcation/json" <| String.fromInt <| id
+        , expect = Http.expectWhatever AddToCartSuccess
+        , timeout = Nothing
+        , tracker = Nothing
+        }
+
+
+calculateTotal : Model -> Float
+calculateTotal model =
+    let
+        items =
+            model.products
+    in
+    items
+        |> List.map (\i -> toFloat i.quantity * i.productItem.price)
+        |> List.foldl (+) 0
+
+
+viewCartItemListing : CartListing -> Html Msg
+viewCartItemListing listing =
     div []
-        [ text p.name
-        , div [] [ text <| Maybe.withDefault "" p.kind ]
-        , div [] [ text <| Maybe.withDefault "" p.description ]
-        , div [] [ text <| String.fromFloat p.price ]
-        , div [] [ button [ onClick (RemoveFromCart p.id) ] [ text "Remove" ] ]
-        , div [] [ a [ href ("/product/" ++ String.fromInt p.id) ] [ text "View Product" ] ]
+        [ text listing.productItem.name
+        , div [] [ text <| Maybe.withDefault "" listing.productItem.kind ]
+        , div [] [ text <| Maybe.withDefault "" listing.productItem.description ]
+        , div [] [ text <| String.fromFloat listing.productItem.price ]
+        , div [] [ text <| String.fromInt listing.quantity ]
+        , div [] [ button [ onClick (AddToCartPressed listing.productItem.id) ] [ text "Add" ] ]
+        , div [] [ button [ onClick (RemoveFromCart listing.productItem.id) ] [ text "Remove" ] ]
+        , div [] [ a [ href ("/product/" ++ String.fromInt listing.productItem.id) ] [ text "View Product" ] ]
         ]
 
 
@@ -154,11 +202,13 @@ view model =
             div []
                 [ let
                     cart =
-                        List.map viewProduct model.products
+                        List.map viewCartItemListing model.products
                   in
                   if List.isEmpty cart then
                     text "No items in cart"
 
                   else
                     ul [] cart
+                , calculateTotal model |> String.fromFloat |> text
+                , a [ href "/checkout" ] [ text "Checkout" ]
                 ]

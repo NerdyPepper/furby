@@ -188,13 +188,13 @@ viewFilters : Model -> Html Msg
 viewFilters model =
     let
         priceRange =
-            range 0 50000 5000
+            range 0 55000 5000
 
         ratingRange =
-            List.range 1 5
+            range 1 6 1
 
-        viewRange =
-            List.map (\i -> option [] [ text <| String.fromInt i ])
+        viewRange default scale =
+            List.map (\i -> option [ selected (i == default) ] [ text <| String.fromInt i ]) scale
 
         inp =
             Maybe.withDefault 0 << String.toFloat
@@ -202,15 +202,15 @@ viewFilters model =
     div []
         [ div []
             [ text "Price"
-            , select [ onInput (ChangePriceLower << inp) ] (viewRange priceRange)
+            , select [ onInput (ChangePriceLower << inp) ] (viewRange 0 priceRange)
             , text "to"
-            , select [ onInput (ChangePriceUpper << inp) ] (viewRange priceRange)
+            , select [ onInput (ChangePriceUpper << inp) ] (viewRange 50000 priceRange)
             ]
         , div []
             [ text "Rating"
-            , select [ onInput (ChangeRatingLower << inp) ] (viewRange ratingRange)
+            , select [ onInput (ChangeRatingLower << inp) ] (viewRange 1 ratingRange)
             , text "to"
-            , select [ onInput (ChangeRatingUpper << inp) ] (viewRange ratingRange)
+            , select [ onInput (ChangeRatingUpper << inp) ] (viewRange 5 ratingRange)
             ]
         ]
 

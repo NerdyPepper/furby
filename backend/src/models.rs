@@ -35,6 +35,8 @@ pub struct Product {
     pub kind: Option<String>,
     pub price: f32,
     pub description: Option<String>,
+    pub src: Option<String>,
+    pub ios_src: Option<String>,
 }
 
 #[derive(Insertable, Deserialize)]
@@ -48,6 +50,12 @@ pub struct NewProduct {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub src: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ios_src: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -63,6 +71,7 @@ pub struct UpdateProduct {
 pub struct CartItem {
     pub cart_id: i32,
     pub product_id: i32,
+    pub quantity: Option<i32>,
 }
 
 #[derive(Insertable, Deserialize)]
@@ -70,6 +79,7 @@ pub struct CartItem {
 pub struct AddCartItem {
     pub cart_id: i32,
     pub product_id: i32,
+    pub quantity: Option<i32>,
 }
 
 /* Rating */
@@ -94,4 +104,22 @@ pub struct AddRating {
 
     pub product_id: i32,
     pub customer_id: i32,
+}
+
+/* Transaction */
+#[derive(Queryable, Serialize)]
+pub struct Transaction {
+    pub id: i32,
+    pub payment_type: String,
+    pub amount: f32,
+    pub customer_id: Option<i32>,
+    pub order_date: NaiveDate,
+}
+
+#[derive(Insertable, Deserialize)]
+#[table_name = "transaction"]
+pub struct AddTransaction {
+    pub payment_type: String,
+    pub amount: f32,
+    pub customer_id: Option<i32>,
 }

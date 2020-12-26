@@ -4,6 +4,7 @@ import Browser
 import Browser.Navigation as Nav
 import Cart
 import Catalog
+import Checkout
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
@@ -43,6 +44,7 @@ type Route
     | CatalogPage
     | CartPage
     | ProductPage Int
+    | CheckoutPage
     | NotFoundPage
 
 
@@ -54,9 +56,8 @@ parseRoute =
         , P.map CatalogPage (P.s "catalog")
         , P.map CartPage (P.s "cart")
         , P.map SignupPage (P.s "signup")
+        , P.map CheckoutPage (P.s "checkout")
         , P.map ProductPage (P.s "product" </> P.int)
-
-        --, P.map ProductPage (P.s "product" </> int)
         ]
 
 
@@ -69,6 +70,7 @@ type alias Model =
     , productModel : Product.Model
     , signupModel : Signup.Model
     , cartModel : Cart.Model
+    , checkoutModel : Checkout.Model
     }
 
 
@@ -92,8 +94,11 @@ init flags url key =
 
         cart =
             Cart.init
+
+        checkout =
+            Checkout.init
     in
-    ( Model key url start login catalog product signup cart, Cmd.none )
+    ( Model key url start login catalog product signup cart checkout, Cmd.none )
 
 
 
@@ -108,6 +113,7 @@ type Msg
     | ProductMessage Product.Msg
     | SignupMessage Signup.Msg
     | CartMessage Cart.Msg
+    | CheckoutMessage Checkout.Msg
     | LogoutPressed
     | LogoutSuccess (Result Http.Error ())
 
@@ -127,7 +133,7 @@ update msg model =
             ( model, tryLogout )
 
         LogoutSuccess _ ->
-            ( model, Nav.replaceUrl model.key "/login" )
+            ( { model | loginModel = Login.init }, Nav.replaceUrl model.key "/login" )
 
         UrlChanged url ->
             let
@@ -154,6 +160,16 @@ update msg model =
                             Cmd.map CartMessage Cart.fetchCartItems
                     in
                     ( { model | location = CartPage }, cmd )
+
+                Just CheckoutPage ->
+                    let
+                        _ =
+                            Debug.log "err" "loading checkout page ..."
+
+                        cmd =
+                            Cmd.map CheckoutMessage Checkout.fetchAmount
+                    in
+                    ( { model | location = CheckoutPage }, cmd )
 
                 Just p ->
                     ( { model | location = p }, Cmd.none )
@@ -204,6 +220,16 @@ update msg model =
                     Cart.update cm model.cartModel
             in
             ( { model | cartModel = cmn }, Cmd.map CartMessage cmd )
+
+        CheckoutMessage cm ->
+            let
+                ( cmn, cmd ) =
+                    Checkout.update cm model.checkoutModel
+
+                _ =
+                    Debug.log "err" "received checkout message ..."
+            in
+            ( { model | checkoutModel = cmn }, Cmd.map CheckoutMessage cmd )
 
         ProductMessage pm ->
             let
@@ -290,6 +316,11 @@ view model =
         CartPage ->
             { title = "Cart"
             , body = pageWrap model (Html.map CartMessage (Cart.view model.cartModel))
+            }
+
+        CheckoutPage ->
+            { title = "Checkout"
+            , body = pageWrap model (Html.map CheckoutMessage (Checkout.view model.checkoutModel))
             }
 
         ProductPage item ->

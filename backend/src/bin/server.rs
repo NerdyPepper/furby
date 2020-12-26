@@ -5,7 +5,7 @@ use actix_web::{web, App, HttpServer};
 use diesel::r2d2::{ConnectionManager, Pool};
 use diesel::MysqlConnection;
 use furby::handlers::smoke::manual_hello;
-use furby::handlers::{cart_items, product, rating, users};
+use furby::handlers::{cart_items, product, rating, transaction, users};
 use rand::Rng;
 
 #[actix_web::main]
@@ -48,6 +48,7 @@ async fn main() -> std::io::Result<()> {
                 web::scope("/user")
                     .route("/existing", web::post().to(users::name_exists))
                     .route("/login", web::post().to(users::login))
+                    .route("/logout", web::post().to(users::logout))
                     .route("/{uname}", web::get().to(users::user_details))
                     .route("/new", web::post().to(users::new_user))
                     .route(
@@ -75,6 +76,10 @@ async fn main() -> std::io::Result<()> {
                         "/items",
                         web::get().to(cart_items::get_user_cart_items),
                     )
+                    .route(
+                        "/total",
+                        web::get().to(cart_items::get_user_cart_total),
+                    )
                     .route("/add", web::post().to(cart_items::add_to_cart))
                     .route(
                         "/remove",
@@ -85,6 +90,17 @@ async fn main() -> std::io::Result<()> {
                 web::scope("/rating")
                     .route("/add", web::post().to(rating::add_rating))
                     .route("/remove", web::post().to(rating::remove_rating)),
+            )
+            .service(
+                web::scope("/transaction")
+                    .route(
+                        "/checkout",
+                        web::post().to(transaction::checkout_cart),
+                    )
+                    .route(
+                        "/list",
+                        web::get().to(transaction::list_transactions),
+                    ),
             )
             .route("/hey", web::get().to(manual_hello))
     })

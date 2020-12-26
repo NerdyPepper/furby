@@ -2,6 +2,7 @@ table! {
     cart_items (cart_id, product_id) {
         cart_id -> Integer,
         product_id -> Integer,
+        quantity -> Nullable<Integer>,
     }
 }
 
@@ -43,6 +44,7 @@ table! {
         payment_type -> Varchar,
         amount -> Float,
         customer_id -> Nullable<Integer>,
+        order_date -> Date,
     }
 }
 
