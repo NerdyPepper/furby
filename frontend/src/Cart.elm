@@ -246,5 +246,10 @@ view model =
                                     ]
                                ]
                         )
-                    , a [ href "/checkout" ] [ text "Checkout" ]
+                    , div
+                        [ css [ textAlign right ] ]
+                        [ furbyButton
+                            []
+                            [ a [ href "/checkout" ] [ text "Checkout" ] ]
+                        ]
                     ]

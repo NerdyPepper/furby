@@ -372,14 +372,51 @@ viewRating r =
 
 viewInput : String -> String -> String -> (String -> msg) -> Html msg
 viewInput t p v toMsg =
-    input [ type_ t, placeholder p, value v, onInput toMsg ] []
+    input
+        [ type_ t
+        , placeholder p
+        , value v
+        , onInput toMsg
+        , css [ Css.width (pct 100), Css.height (px 100) ]
+        ]
+        []
 
 
-viewStars : Html Msg
-viewStars =
-    ul []
+viewStars : Model -> Html Msg
+viewStars model =
+    let
+        activeStyle =
+            [ border3 (px 3) solid theme.fg ]
+
+        inactiveStyle =
+            [ border3 (px 3) solid theme.primary ]
+
+        buttonStyle =
+            [ borderRadius (px 6), margin (px 6), backgroundColor theme.bg, padding2 (px 4) (px 8) ]
+    in
+    div
+        [ css
+            [ Css.width (pct 100)
+            , margin auto
+            , padding (px 12)
+            , textAlign center
+            ]
+        ]
         (List.map
-            (\i -> button [ onClick (AddRatingStars i) ] [ text <| String.fromInt i ])
+            (\i ->
+                button
+                    [ onClick (AddRatingStars i)
+                    , (if i == model.ratingStars then
+                        activeStyle
+
+                       else
+                        inactiveStyle
+                      )
+                        ++ buttonStyle
+                        |> css
+                    ]
+                    [ text <| String.fromInt i ]
+            )
             [ 1, 2, 3, 4, 5 ]
         )
 
@@ -393,16 +430,13 @@ view model =
         _ ->
             div
                 [ css
-                    [ Css.width (pct 60)
+                    [ Css.width (pct 50)
                     , margin auto
                     ]
                 ]
                 [ div [] [ viewProduct model.listing ]
                 , div
-                    [ css
-                        [ cardPrimaryText
-                        ]
-                    ]
+                    [ css [ cardPrimaryText ] ]
                     [ text "User Reviews" ]
                 , if model.ratings == [] then
                     text "Be the first to add a review."
@@ -415,13 +449,19 @@ view model =
                             ]
                         ]
                         (List.map viewRating model.ratings)
-                , div [] [ text "Add Rating: " ]
-                , div []
-                    [ viewStars
-                    , viewInput "text" "Enter Comment Text" model.ratingText AddRatingComment
-                    , button [ onClick AddRatingPressed ] [ text "Submit Rating" ]
-                    ]
-                , div []
-                    [ a [ href "/catalog" ] [ text "Back to catalog" ]
+                , div
+                    [ css [ cardPrimaryText, margin2 (px 20) (px 0) ] ]
+                    [ text "Rate this product" ]
+                , div
+                    []
+                    [ viewStars model
+                    , div
+                        []
+                        [ viewInput "textarea" "Enter Comment Text" model.ratingText AddRatingComment ]
+                    , div
+                        [ css
+                            [ textAlign center ]
+                        ]
+                        [ furbyButton [ onClick AddRatingPressed ] [ text "Submit Rating" ] ]
                     ]
                 ]

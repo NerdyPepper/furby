@@ -135,6 +135,13 @@ view model =
                 , div [] [ furbyRadio "Cash" (PaymentModeSelected "Cash") ]
                 , div [] [ furbyRadio "Debit Card" (PaymentModeSelected "Debit Card") ]
                 , div [] [ furbyRadio "Credit Card" (PaymentModeSelected "Credit Card") ]
-                , div [] [ a [ href "/cart" ] [ text "Cancel" ] ]
-                , div [] [ button [ onClick CheckoutPressed ] [ text "Confirm and Pay" ] ]
+                , div
+                    []
+                    [ div
+                        [ css [ float left, Css.width (pct 40), margin (px 15) ] ]
+                        [ furbyButton [ style "width" "100%" ] [ a [ href "/cart" ] [ text "Cancel" ] ] ]
+                    , div
+                        [ css [ float left, Css.width (pct 40), margin (px 15) ] ]
+                        [ furbyButton [ onClick CheckoutPressed, style "width" "100%" ] [ text "Confirm and Pay" ] ]
+                    ]
                 ]
