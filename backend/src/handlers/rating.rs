@@ -82,10 +82,3 @@ pub async fn remove_rating(
             .body("Need to be logged in to add to cart!");
     }
 }
-
-// pub async fn get_product_reviews(
-//     product: web::Json<GetProductReviews>,
-//     pool: web::Data<TPool>,
-// ) -> impl Responder {
-//     unimplemented!()
-// }

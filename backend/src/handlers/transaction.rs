@@ -45,6 +45,9 @@ pub async fn checkout_cart(
             .values(transaction_entry)
             .execute(&conn)
             .expect("Coundn't connect to DB");
+        diesel::delete(cart_items.filter(cart_id.eq(selected_user.id)))
+            .execute(&conn)
+            .expect("Coundn't connect to DB");
         return HttpResponse::Ok().body("Transaction performed successfully");
     } else {
         return HttpResponse::Unauthorized().body("Login first");
