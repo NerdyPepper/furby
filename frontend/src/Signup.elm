@@ -217,7 +217,7 @@ view model =
             ]
         , div [ fieldPadding ]
             [ text "Already have a account? "
-            , a [ href "/login" ] [ text "Login >" ]
+            , furbyLink [ href "/login" ] [ text "Login >" ]
             ]
         , text (viewStatus model.status)
         ]

@@ -10,6 +10,7 @@ import Html.Styled.Events exposing (..)
 import Http
 import Json.Decode as D
 import Json.Encode as Encode
+import Set
 import Styles exposing (..)
 import Tuple exposing (..)
 import Utils exposing (..)
@@ -35,12 +36,13 @@ type alias Product =
 type alias Filters =
     { price : ( Float, Float )
     , rating : ( Float, Float )
+    , kinds : Set.Set String
     }
 
 
 defaultFilters : Filters
 defaultFilters =
-    Filters ( -1, 100000 ) ( 0, 5 )
+    Filters ( -1, 100000 ) ( 0, 5 ) (Set.fromList [ "Chair", "Sofa", "Bed", "Table", "Lamp" ])
 
 
 type alias Model =
@@ -63,6 +65,7 @@ type Msg
     | ChangePriceUpper Float
     | ChangeRatingLower Float
     | ChangeRatingUpper Float
+    | FilterCheck String Bool
 
 
 init : Model
@@ -128,6 +131,28 @@ update msg model =
             in
             ( { model | filters = nfs }, Cmd.none )
 
+        FilterCheck field val ->
+            case val of
+                True ->
+                    let
+                        fs =
+                            model.filters
+
+                        nfs =
+                            { fs | kinds = Set.insert field fs.kinds }
+                    in
+                    ( { model | filters = nfs }, Cmd.none )
+
+                False ->
+                    let
+                        fs =
+                            model.filters
+
+                        nfs =
+                            { fs | kinds = Set.remove field fs.kinds }
+                    in
+                    ( { model | filters = nfs }, Cmd.none )
+
 
 decodeProduct : D.Decoder Product
 decodeProduct =
@@ -181,13 +206,13 @@ viewProduct p =
             , borderRadius (px 4)
             , padding (px 20)
             , Css.width (pct 100)
-            , maxWidth (px 650)
+            , maxWidth (px 350)
             ]
         ]
         [ div
             [ css
-                [ float left
-                , Css.width (pct 50)
+                [ Css.width (pct 100)
+                , Css.height (px 350)
                 ]
             ]
             [ modelViewer
@@ -197,13 +222,13 @@ viewProduct p =
                 , arIosSrc p.iosSrc
                 , loading "eager"
                 , arModes "webxr"
+                , css [ Css.width (pct 100), Css.height (pct 100) ]
                 ]
                 []
             ]
         , div
             [ css
-                [ float left
-                , Css.width (pct 50)
+                [ Css.width (pct 100)
                 ]
             ]
             [ div
@@ -220,7 +245,7 @@ viewProduct p =
                     , paddingBottom (px 3)
                     ]
                 ]
-                [ a [ href ("/product/" ++ String.fromInt p.id) ] [ text p.name ] ]
+                [ furbyLink [ href ("/product/" ++ String.fromInt p.id) ] [ text p.name ] ]
             , div
                 [ css
                     [ cardSecondaryText
@@ -274,22 +299,57 @@ viewFilters model =
         [ div
             [ css
                 [ bigHeading
-                , paddingBottom (px 12)
+                , paddingBottom (px 18)
                 ]
             ]
             [ text "Filters" ]
-        , div []
+        , div
+            [ css
+                [ paddingBottom (px 12)
+                ]
+            ]
             [ div [] [ text "Price" ]
             , furbySelect [ onInput (ChangePriceLower << inp), style "appearance" "none" ] (viewRange 0 priceRange)
             , text "to"
             , furbySelect [ onInput (ChangePriceUpper << inp), style "appearance" "none" ] (viewRange 50000 priceRange)
             ]
-        , div []
+        , div
+            [ css
+                [ paddingBottom (px 12)
+                ]
+            ]
             [ div [] [ text "Rating" ]
             , furbySelect [ onInput (ChangeRatingLower << inp), style "appearance" "none" ] (viewRange 1 ratingRange)
             , text "to"
             , furbySelect [ onInput (ChangeRatingUpper << inp), style "appearance" "none" ] (viewRange 5 ratingRange)
             ]
+        , let
+            kinds =
+                [ "Chair", "Sofa", "Bed", "Table", "Lamp" ]
+          in
+          div []
+            ([ div
+                [ css
+                    [ paddingBottom (px 12)
+                    ]
+                ]
+                [ text "Furniture Kind" ]
+             ]
+                ++ List.map
+                    (\k ->
+                        div
+                            []
+                            [ input
+                                [ type_ "checkbox"
+                                , onCheck (FilterCheck k)
+                                , Html.Styled.Attributes.checked (Set.member k model.filters.kinds)
+                                ]
+                                []
+                            , text k
+                            ]
+                    )
+                    kinds
+            )
         ]
 
 
@@ -297,6 +357,7 @@ filterProducts : Model -> List Product
 filterProducts model =
     model.products
         |> List.filter (between model.filters.price << .price)
+        |> List.filter (flip Set.member model.filters.kinds << Maybe.withDefault "Chair" << .kind)
         |> List.filter
             (\p ->
                 p.averageRating
@@ -328,11 +389,9 @@ view model =
                         ]
                     ]
                     [ div [ css [ bigHeading ] ] [ text "Products" ]
-                    , ul
-                        [ css
-                            [ padding (px 0)
-                            , listStyle Css.none
-                            ]
+                    , div
+                        [ style "display" "grid"
+                        , style "grid-template-columns" "auto auto auto"
                         ]
                         (filterProducts model |> List.map viewProduct)
                     ]

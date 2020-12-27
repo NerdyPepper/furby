@@ -11,6 +11,11 @@ between ( l, u ) v =
     v >= l && v <= u
 
 
+flip : (a -> b -> c) -> (b -> a -> c)
+flip f =
+    \b a -> f a b
+
+
 range : Int -> Int -> Int -> List Int
 range start stop step =
     if start >= stop then

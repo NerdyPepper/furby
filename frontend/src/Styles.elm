@@ -47,8 +47,7 @@ headerLink =
         , padding (px 12)
         , textDecoration Css.none
         , hover
-            [ backgroundColor theme.secondary
-            , textDecoration underline
+            [ textDecoration underline
             ]
         ]
 
@@ -67,6 +66,17 @@ furbyButton =
             [ backgroundColor theme.secondary
             , color theme.fg
             , margin (px 12)
+            ]
+        ]
+
+
+furbyLink : List (Attribute msg) -> List (Html msg) -> Html msg
+furbyLink =
+    styled a
+        [ color theme.fgLight
+        , textDecoration Css.none
+        , hover
+            [ backgroundColor theme.secondary
             ]
         ]
 
@@ -108,6 +118,7 @@ loginInputField =
         , color theme.fg
         , border (px 0)
         , borderBottom3 (px 1) solid theme.bgLight
+        , outline Css.none
         , focus
             [ borderBottom3 (px 2) solid theme.fg
             ]

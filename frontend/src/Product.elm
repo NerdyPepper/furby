@@ -257,7 +257,7 @@ viewProduct p =
     div
         [ css
             [ marginBottom (px 20)
-            , padding (px 20)
+            , paddingTop (px 20)
             , Css.width (pct 100)
             ]
         ]
@@ -265,6 +265,7 @@ viewProduct p =
             [ css
                 [ float left
                 , Css.width (pct 50)
+                , Css.height (px 400)
                 ]
             ]
             [ modelViewer
@@ -274,6 +275,7 @@ viewProduct p =
                 , arIosSrc p.iosSrc
                 , loading "eager"
                 , arModes "webxr"
+                , css [ Css.height (pct 100), Css.width (pct 100) ]
                 ]
                 []
             ]
@@ -312,12 +314,11 @@ viewProduct p =
                     , money
                     ]
                 ]
-                [ text <| String.fromFloat p.price
-                , div []
-                    [ furbyButton [ onClick AddToCartPressed ] [ text "Add To Cart" ]
-                    ]
-                ]
+                [ text <| String.fromFloat p.price ]
             ]
+        , div
+            [ css [ textAlign center, float bottom ] ]
+            [ furbyButton [ onClick AddToCartPressed, style "width" "100%" ] [ text "Add To Cart" ] ]
         , div [ style "clear" "both" ] []
         ]
 
@@ -377,7 +378,7 @@ viewInput t p v toMsg =
         , placeholder p
         , value v
         , onInput toMsg
-        , css [ Css.width (pct 100), Css.height (px 100) ]
+        , css [ Css.width (pct 100) ]
         ]
         []
 
@@ -457,7 +458,14 @@ view model =
                     [ viewStars model
                     , div
                         []
-                        [ viewInput "textarea" "Enter Comment Text" model.ratingText AddRatingComment ]
+                        [ textarea
+                            [ onInput AddRatingComment
+                            , rows 5
+                            , placeholder "Enter comment text"
+                            , css [ Css.width (pct 100) ]
+                            ]
+                            [ text model.ratingText ]
+                        ]
                     , div
                         [ css
                             [ textAlign center ]

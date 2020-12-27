@@ -134,5 +134,5 @@ view model =
         , div [ fieldPadding ] [ viewInput "password" "Password" model.password PassEntered ]
         , div [ css [ textAlign center ], fieldPadding ] [ furbyButton [ onClick LoginPressed ] [ text "Login" ] ]
         , div [ css [ textAlign center ] ] [ text (viewStatus model.loginStatus) ]
-        , div [ fieldPadding ] [ text "Don't have an account? ", a [ href "/signup" ] [ text "Register now!" ] ]
+        , div [ fieldPadding ] [ text "Don't have an account? ", furbyLink [ href "/signup" ] [ text "Register now!" ] ]
         ]

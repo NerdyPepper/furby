@@ -315,23 +315,24 @@ view model =
         HomePage ->
             { title = "Login"
             , body =
-                -- model.loginModel
-                --     |> Login.view
-                --     |> Html.Styled.map LoginMessage
-                --     |> toUnstyled
-                --     |> List.singleton
-                div []
-                    [ ul []
-                        (List.map
-                            (\l ->
-                                li []
-                                    [ a [ href l ] [ text l ] ]
-                            )
-                            [ "/login", "/catalog", "/cart" ]
-                        )
-                    ]
+                model.loginModel
+                    |> Login.view
+                    |> Html.Styled.map LoginMessage
                     |> toUnstyled
                     |> List.singleton
+
+            --div []
+            --    [ ul []
+            --        (List.map
+            --            (\l ->
+            --                li []
+            --                    [ a [ href l ] [ text l ] ]
+            --            )
+            --            [ "/login", "/catalog", "/cart" ]
+            --        )
+            --    ]
+            --    |> toUnstyled
+            --    |> List.singleton
             }
 
         LoginPage ->

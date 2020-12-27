@@ -193,7 +193,7 @@ viewCartItemListing listing =
     --     , div [] [ a [ href ("/product/" ++ String.fromInt listing.productItem.id) ] [ text "View Product" ] ]
     --     ]
     tr []
-        [ td [] [ a [ href ("/product/" ++ String.fromInt listing.productItem.id) ] [ text listing.productItem.name ] ]
+        [ td [] [ furbyLink [ href ("/product/" ++ String.fromInt listing.productItem.id) ] [ text listing.productItem.name ] ]
         , td [] [ text <| String.fromFloat listing.productItem.price ]
         , td []
             [ furbyButton [ onClick (RemoveFromCart listing.productItem.id) ] [ div [ style "font-family" "monospace" ] [ text "-" ] ]
@@ -250,6 +250,6 @@ view model =
                         [ css [ textAlign right ] ]
                         [ furbyButton
                             []
-                            [ a [ href "/checkout" ] [ text "Checkout" ] ]
+                            [ furbyLink [ href "/checkout" ] [ text "Checkout" ] ]
                         ]
                     ]
