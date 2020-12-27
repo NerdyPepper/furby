@@ -287,7 +287,7 @@ viewProduct p =
                 [ css
                     [ cardSecondaryText
                     , paddingBottom (px 3)
-                    , fontVariant smallCaps
+                    , textTransform uppercase
                     ]
                 ]
                 [ text <| Maybe.withDefault "" p.kind ]

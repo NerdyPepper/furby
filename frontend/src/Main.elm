@@ -14,6 +14,7 @@ import Http
 import Json.Encode as Encode
 import Login
 import Product
+import Profile
 import Signup
 import Styles exposing (..)
 import Url
@@ -48,6 +49,7 @@ type Route
     | CartPage
     | ProductPage Int
     | CheckoutPage
+    | ProfilePage
     | NotFoundPage
 
 
@@ -61,6 +63,7 @@ parseRoute =
         , P.map SignupPage (P.s "signup")
         , P.map CheckoutPage (P.s "checkout")
         , P.map ProductPage (P.s "product" </> P.int)
+        , P.map ProfilePage (P.s "profile")
         ]
 
 
@@ -74,6 +77,7 @@ type alias Model =
     , signupModel : Signup.Model
     , cartModel : Cart.Model
     , checkoutModel : Checkout.Model
+    , profileModel : Profile.Model
     }
 
 
@@ -100,8 +104,11 @@ init flags url key =
 
         checkout =
             Checkout.init
+
+        profile =
+            Profile.init
     in
-    ( Model key url start login catalog product signup cart checkout, Cmd.none )
+    ( Model key url start login catalog product signup cart checkout profile, Cmd.none )
 
 
 
@@ -117,6 +124,7 @@ type Msg
     | SignupMessage Signup.Msg
     | CartMessage Cart.Msg
     | CheckoutMessage Checkout.Msg
+    | ProfileMessage Profile.Msg
     | LogoutPressed
     | LogoutSuccess (Result Http.Error ())
 
@@ -174,6 +182,13 @@ update msg model =
                     in
                     ( { model | location = CheckoutPage }, cmd )
 
+                Just ProfilePage ->
+                    let
+                        cmd =
+                            Cmd.map ProfileMessage Profile.tryFetchProfile
+                    in
+                    ( { model | location = ProfilePage }, cmd )
+
                 Just p ->
                     ( { model | location = p }, Cmd.none )
 
@@ -229,10 +244,28 @@ update msg model =
                 ( cmn, cmd ) =
                     Checkout.update cm model.checkoutModel
 
+                redir =
+                    case cmn.pageStatus of
+                        Checkout.CheckedOut ->
+                            Nav.replaceUrl model.key "/profile"
+
+                        _ ->
+                            Cmd.none
+
                 _ =
                     Debug.log "err" "received checkout message ..."
             in
-            ( { model | checkoutModel = cmn }, Cmd.map CheckoutMessage cmd )
+            ( { model | checkoutModel = cmn }, Cmd.batch [ Cmd.map CheckoutMessage cmd, redir ] )
+
+        ProfileMessage pm ->
+            let
+                ( pmn, cmd ) =
+                    Profile.update pm model.profileModel
+
+                _ =
+                    Debug.log "err" "recieved profile message"
+            in
+            ( { model | profileModel = pmn }, Cmd.map ProfileMessage cmd )
 
         ProductMessage pm ->
             let
@@ -359,6 +392,15 @@ view model =
                     |> pageWrap model
             }
 
+        ProfilePage ->
+            { title = "Profile"
+            , body =
+                model.profileModel
+                    |> Profile.view
+                    |> Html.Styled.map ProfileMessage
+                    |> pageWrap model
+            }
+
         ProductPage item ->
             { title = "Product " ++ String.fromInt item
             , body =
@@ -379,7 +421,7 @@ viewHeader model =
     in
     div
         [ css
-            [ padding (px 40)
+            [ padding (px 30)
             , paddingTop (px 3)
             , paddingBottom (px 3)
             , textAlign left
@@ -393,17 +435,19 @@ viewHeader model =
                     ]
             )
             links
-            ++ [ if model.loginModel.loginStatus /= Login.LoggedIn then
-                    li [ css [ display inline ] ] [ headerLink [ href "/login" ] [ text "Login" ] ]
+            ++ (if model.loginModel.loginStatus /= Login.LoggedIn then
+                    [ furbyButton [] [ headerLink [ href "/login" ] [ text "Login" ] ] ]
 
-                 else
-                    furbyButton [ onClick LogoutPressed ] [ text "Logout" ]
-               ]
+                else
+                    [ headerLink [ href "/profile" ] [ text "Profile" ]
+                    , furbyButton [ onClick LogoutPressed ] [ text "Logout" ]
+                    ]
+               )
             |> ul
                 [ css
                     [ listStyle Css.none
                     , padding (px 0)
-                    , margin (px 24)
+                    , margin (px 12)
                     ]
                 ]
         ]

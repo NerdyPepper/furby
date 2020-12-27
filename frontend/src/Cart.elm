@@ -2,6 +2,7 @@ module Cart exposing (..)
 
 import Browser
 import Browser.Navigation as Nav
+import Css exposing (..)
 import Html
 import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (..)
@@ -9,8 +10,8 @@ import Html.Styled.Events exposing (..)
 import Http
 import Json.Decode as D
 import Json.Encode as Encode
-import Url
-import Url.Parser as P exposing ((</>), Parser, int, oneOf, s, string)
+import Styles exposing (..)
+import Utils exposing (..)
 
 
 type alias Product =
@@ -181,15 +182,24 @@ calculateTotal model =
 
 viewCartItemListing : CartListing -> Html Msg
 viewCartItemListing listing =
-    div []
-        [ text listing.productItem.name
-        , div [] [ text <| Maybe.withDefault "" listing.productItem.kind ]
-        , div [] [ text <| Maybe.withDefault "" listing.productItem.description ]
-        , div [] [ text <| String.fromFloat listing.productItem.price ]
-        , div [] [ text <| String.fromInt listing.quantity ]
-        , div [] [ button [ onClick (AddToCartPressed listing.productItem.id) ] [ text "Add" ] ]
-        , div [] [ button [ onClick (RemoveFromCart listing.productItem.id) ] [ text "Remove" ] ]
-        , div [] [ a [ href ("/product/" ++ String.fromInt listing.productItem.id) ] [ text "View Product" ] ]
+    -- div []
+    --     [ text listing.productItem.name
+    --     , div [] [ text <| Maybe.withDefault "" listing.productItem.kind ]
+    --     , div [] [ text <| Maybe.withDefault "" listing.productItem.description ]
+    --     , div [] [ text <| String.fromFloat listing.productItem.price ]
+    --     , div [] [ text <| String.fromInt listing.quantity ]
+    --     , div [] [ button [ onClick (AddToCartPressed listing.productItem.id) ] [ text "Add" ] ]
+    --     , div [] [ button [ onClick (RemoveFromCart listing.productItem.id) ] [ text "Remove" ] ]
+    --     , div [] [ a [ href ("/product/" ++ String.fromInt listing.productItem.id) ] [ text "View Product" ] ]
+    --     ]
+    tr []
+        [ td [] [ a [ href ("/product/" ++ String.fromInt listing.productItem.id) ] [ text listing.productItem.name ] ]
+        , td [] [ text <| String.fromFloat listing.productItem.price ]
+        , td []
+            [ furbyButton [ onClick (RemoveFromCart listing.productItem.id) ] [ div [ style "font-family" "monospace" ] [ text "-" ] ]
+            , text <| String.fromInt listing.quantity
+            , furbyButton [ onClick (AddToCartPressed listing.productItem.id) ] [ div [ style "font-family" "monospace" ] [ text "+" ] ]
+            ]
         ]
 
 
@@ -200,16 +210,41 @@ view model =
             div [] [ text <| viewStatus Loading ]
 
         _ ->
-            div []
-                [ let
-                    cart =
-                        List.map viewCartItemListing model.products
-                  in
-                  if List.isEmpty cart then
-                    text "No items in cart"
+            let
+                cart =
+                    List.map viewCartItemListing model.products
 
-                  else
-                    ul [] cart
-                , calculateTotal model |> String.fromFloat |> text
-                , a [ href "/checkout" ] [ text "Checkout" ]
-                ]
+                headings =
+                    [ "Product Name", "Price (₹)", "Quantity" ]
+                        |> List.map (th [] << List.singleton << text)
+            in
+            if List.isEmpty cart then
+                text "No items in cart"
+
+            else
+                div
+                    [ css
+                        [ margin auto
+                        , marginTop (pct 5)
+                        , Css.width (pct 40)
+                        ]
+                    ]
+                    [ div [ css [ bigHeading, marginBottom (px 20) ] ] [ text "Cart" ]
+                    , Html.Styled.table
+                        [ css
+                            [ Css.width (pct 100)
+                            , maxWidth (px 650)
+                            , textAlign right
+                            ]
+                        ]
+                        (tr [] headings
+                            :: cart
+                            ++ [ tr [ style "padding-top" "20px" ]
+                                    [ td [ style "border-top" "1px solid black" ] []
+                                    , td [ style "border-top" "1px solid black" ] [ div [] [ text "Cart total: " ] ]
+                                    , td [ style "border-top" "1px solid black" ] [ calculateTotal model |> String.fromFloat |> text ]
+                                    ]
+                               ]
+                        )
+                    , a [ href "/checkout" ] [ text "Checkout" ]
+                    ]

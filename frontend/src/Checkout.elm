@@ -2,6 +2,7 @@ module Checkout exposing (..)
 
 import Browser
 import Browser.Navigation as Nav
+import Css exposing (..)
 import Html
 import Html.Styled exposing (..)
 import Html.Styled.Attributes exposing (..)
@@ -9,9 +10,8 @@ import Html.Styled.Events exposing (..)
 import Http
 import Json.Decode as D
 import Json.Encode as Encode
+import Styles exposing (..)
 import Tuple exposing (..)
-import Url
-import Url.Parser as P exposing ((</>), Parser, int, oneOf, s, string)
 import Utils exposing (..)
 
 
@@ -26,6 +26,7 @@ type Status
     = Loading
     | Loaded
     | NotLoaded
+    | CheckedOut
 
 
 type Msg
@@ -48,7 +49,7 @@ update msg model =
             ( model, tryCheckout model.paymentMode )
 
         CheckoutSuccessful _ ->
-            ( model, Cmd.none )
+            ( { model | pageStatus = CheckedOut }, Cmd.none )
 
         AmountLoaded res ->
             case res of
@@ -107,6 +108,9 @@ viewStatus s =
         NotLoaded ->
             "Not loaded ..."
 
+        CheckedOut ->
+            "Checked out!"
+
 
 view : Model -> Html Msg
 view model =
@@ -115,13 +119,22 @@ view model =
             div [] [ text <| viewStatus Loading ]
 
         _ ->
-            div []
-                [ div [] [ text <| String.fromFloat <| model.cartTotal ]
-                , select []
-                    [ option [ onInput PaymentModeSelected ] [ text "Cash" ]
-                    , option [ onInput PaymentModeSelected ] [ text "Debit Card" ]
-                    , option [ onInput PaymentModeSelected ] [ text "Credit Card" ]
+            div
+                [ css
+                    [ margin auto
+                    , marginTop (pct 5)
+                    , Css.width (pct 40)
                     ]
+                ]
+                [ div [ css [ bigHeading, marginBottom (px 20) ] ] [ text "Checkout" ]
+                , div [ css [ cardSupportingText ] ] [ text "Your total is" ]
+                , div
+                    [ css [ bigHeading, fontWeight bold, marginBottom (px 20) ] ]
+                    [ text <| (++) "₹ " <| String.fromFloat <| model.cartTotal ]
+                , div [ css [ cardSupportingText ] ] [ text "Select a payment mode" ]
+                , div [] [ furbyRadio "Cash" (PaymentModeSelected "Cash") ]
+                , div [] [ furbyRadio "Debit Card" (PaymentModeSelected "Debit Card") ]
+                , div [] [ furbyRadio "Credit Card" (PaymentModeSelected "Credit Card") ]
                 , div [] [ a [ href "/cart" ] [ text "Cancel" ] ]
                 , div [] [ button [ onClick CheckoutPressed ] [ text "Confirm and Pay" ] ]
                 ]

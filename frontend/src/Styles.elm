@@ -71,6 +71,20 @@ furbyButton =
         ]
 
 
+furbyRadio : String -> msg -> Html msg
+furbyRadio value msg =
+    label
+        []
+        [ input
+            [ type_ "radio"
+            , onClick msg
+            , name "radio"
+            ]
+            []
+        , text value
+        ]
+
+
 furbySelect : List (Attribute msg) -> List (Html msg) -> Html msg
 furbySelect =
     styled select
