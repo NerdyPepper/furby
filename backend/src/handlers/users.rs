@@ -1,5 +1,7 @@
-use crate::models::{Customer, NewCustomer};
+use crate::models::{Customer, NewCustomer, Rating, Transaction};
 use crate::schema::customer::dsl::*;
+use crate::schema::rating::dsl as rs;
+use crate::schema::transaction::dsl as ts;
 use crate::TPool;
 
 use actix_identity::Identity;
@@ -7,7 +9,7 @@ use actix_web::{web, HttpResponse, Responder};
 use bcrypt::{hash, verify, DEFAULT_COST};
 use diesel::prelude::*;
 use log::{error, info};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 pub async fn new_user(
     pool: web::Data<TPool>,
@@ -145,4 +147,51 @@ pub async fn change_password(
         }
     }
     return HttpResponse::Unauthorized().body("Login first");
+}
+
+#[derive(Serialize)]
+struct UserProfile {
+    pub username: String,
+    pub email_id: String,
+    pub address: Option<String>,
+    pub transactions: Vec<Transaction>,
+    pub ratings_given: i32,
+    pub phone_number: String,
+}
+
+pub async fn user_profile(
+    cookie: Identity,
+    pool: web::Data<TPool>,
+) -> impl Responder {
+    info!("Fetching user profile for {:?}", cookie.identity());
+    let conn = pool.get().unwrap();
+
+    if let Some(uname) = cookie.identity() {
+        let selected_user = customer
+            .filter(username.eq(&uname))
+            .limit(1)
+            .first::<Customer>(&conn)
+            .expect("Couldn't connect to DB");
+        let user_transactions = ts::transaction
+            .filter(ts::customer_id.eq(selected_user.id))
+            .load(&conn)
+            .expect("Couldn't connect to DB");
+        let user_ratings = rs::rating
+            .filter(rs::customer_id.eq(selected_user.id))
+            .load::<Rating>(&conn)
+            .expect("Couldn't connect to DB")
+            .len() as i32;
+        let profile = UserProfile {
+            username: selected_user.username,
+            email_id: selected_user.email_id,
+            address: selected_user.address,
+            transactions: user_transactions,
+            ratings_given: user_ratings,
+            phone_number: selected_user.phone_number,
+        };
+        return HttpResponse::Ok().json(&profile);
+    } else {
+        return HttpResponse::Unauthorized()
+            .body("Need to be logged in to view profile!");
+    }
 }

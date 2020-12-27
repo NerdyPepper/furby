@@ -34,6 +34,7 @@ async fn main() -> std::io::Result<()> {
                 Cors::default()
                     .allowed_origin("http://127.0.0.1:8000")
                     .allowed_origin("http://localhost:8000")
+                    .allowed_origin("https://poly.googleusercontent.com")
                     .allow_any_method()
                     .allow_any_header(),
             )
@@ -46,6 +47,7 @@ async fn main() -> std::io::Result<()> {
             .data(pool.clone())
             .service(
                 web::scope("/user")
+                    .route("/profile", web::get().to(users::user_profile))
                     .route("/existing", web::post().to(users::name_exists))
                     .route("/login", web::post().to(users::login))
                     .route("/logout", web::post().to(users::logout))
