@@ -40,6 +40,7 @@
       src = "./.";
       buildInputs = [ 
         tokei
+        redis
       ] ++ frontendPackages ++ backendPackages;
     };
   };

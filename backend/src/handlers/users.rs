@@ -9,6 +9,7 @@ use actix_web::{web, HttpResponse, Responder};
 use bcrypt::{hash, verify, DEFAULT_COST};
 use diesel::prelude::*;
 use log::{error, info};
+use redis::Commands;
 use serde::{Deserialize, Serialize};
 
 pub async fn new_user(
@@ -74,6 +75,14 @@ pub async fn login(
     let hashed_pass = selected_user.password;
     if verify(entered_pass, &hashed_pass).unwrap() {
         cookie.remember(login_details.username.clone());
+        let redis_client = redis::Client::open("redis://127.0.0.1/").unwrap();
+        let mut redis_conn = redis_client.get_connection().unwrap();
+        redis_conn
+            .set::<String, String, String>(
+                login_details.username.clone(),
+                cookie.identity().unwrap(),
+            )
+            .unwrap();
         info!(
             "Successful login: {} {}",
             selected_user.username, selected_user.email_id
@@ -85,6 +94,9 @@ pub async fn login(
 }
 
 pub async fn logout(cookie: Identity) -> impl Responder {
+    let redis_client = redis::Client::open("redis://127.0.0.1/").unwrap();
+    let mut redis_conn = redis_client.get_connection().unwrap();
+    redis_conn.del::<String, String>(cookie.identity().unwrap());
     cookie.forget();
     HttpResponse::Ok().body("Successful logout.")
 }
